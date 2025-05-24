@@ -1,0 +1,104 @@
+.shopping-container {
+  position: relative; /* Para que el panel lateral se posicione relativamente a este contenedor */
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.open-cart-btn {
+  background-color: #5cb85c;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin-top: 20px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.cart-panel {
+  position: fixed; /* El panel se quedará fijo en la pantalla */
+  top: 0;
+  right: -350px; /* Inicialmente oculto fuera de la pantalla */
+  width: 350px;
+  height: 100%;
+  background-color: #f8f8f8;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+  transition: right 0.3s ease-in-out; /* Animación para mostrar/ocultar */
+  z-index: 1000; /* Asegurarse de que esté por encima de otros elementos */
+  display: flex;
+  flex-direction: column;
+}
+
+.cart-panel.open {
+  right: 0; /* Mostrar el panel animándolo hacia la izquierda */
+}
+
+.cart-header {
+  background-color: #333;
+  color: white;
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #555;
+}
+
+.cart-header h3 {
+  margin: 0;
+}
+
+.close-cart-btn {
+  background: none;
+  color: white;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.cart-body {
+  padding: 20px;
+  overflow-y: auto; /* Permitir scroll si el contenido es muy largo */
+  flex-grow: 1; /* El cuerpo ocupa el espacio restante */
+}
+
+.cart-body ul {
+  list-style: none;
+  padding: 0;
+}
+
+.cart-body li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.cart-body li:last-child {
+  border-bottom: none;
+}
+
+.cart-body li button {
+  background-color: #d9534f;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 3px;
+  margin-left: 10px;
+}
+
+.cart-total {
+  font-weight: bold;
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #ddd;
+}

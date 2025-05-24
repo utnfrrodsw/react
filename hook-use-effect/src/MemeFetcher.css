@@ -1,0 +1,41 @@
+.meme-fetcher-container {
+  padding: 20px;
+  font-family: sans-serif;
+}
+
+.meme-fetcher-container h2 {
+  margin-bottom: 15px;
+}
+
+.meme-fetcher-container ul {
+  list-style: none;
+  padding: 0;
+}
+
+.meme-fetcher-container li {
+  border: 1px solid #300909;
+  margin-bottom: 15px;
+  padding: 15px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  justify-content: space-around;
+}
+
+.meme-fetcher-container li img {
+  max-width: 200px;
+  max-height: 150px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+}
+
+.meme-fetcher-container li span {
+  flex-grow: 1;
+}
+
+.meme-fetcher-container p {
+  font-style: italic;
+  color: #777;
+  margin-top: 10px;
+}
