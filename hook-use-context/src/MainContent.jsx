@@ -1,5 +1,5 @@
 import { useTheme } from "./hooks/useTheme";
-import './MainContext.css'
+import './MainContent.css'
 
 function MainContent() {
   const { theme, toggleTheme } = useTheme();
