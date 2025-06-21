@@ -28,7 +28,7 @@ const MemeFetcher = () => {
         const response = await axios.get(apiUrl, { signal });
         setMemes(response.data.data.memes);
       } catch (err) {
-        // if (err.name === 'AbortError') {
+        // if (err.name === 'AbortError') { // check error when using fetch
         if (axios.isCancel(err)) {
           console.log('Fetch aborted!');
         } else {

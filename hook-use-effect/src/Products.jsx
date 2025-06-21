@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+// https://tanstack.com/query/latest/docs/framework/react/overview
 
 // --- Simulación de una API ---
 // En una aplicación real, estas serían tus llamadas fetch/axios a un backend
