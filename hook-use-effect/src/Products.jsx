@@ -13,7 +13,7 @@ const fetchProductos = async () => {
   return response.json();
 };
 
-const addProducto = async (newProduct) => {
+const addProduct = async (newProduct) => {
   // Simula un retardo de red
   await new Promise((resolve) => setTimeout(resolve, 1500));
   const response = await fetch("http://localhost:4000/productos", {
@@ -47,8 +47,8 @@ function Productos() {
   });
 
   // --- Uso de useMutation para agregar un producto ---
-  const addProductoMutation = useMutation({
-    mutationFn: addProducto, // Función que realiza la llamada a la API POST/PUT/DELETE
+  const addProductMutation = useMutation({
+    mutationFn: addProduct, // Función que realiza la llamada a la API POST/PUT/DELETE
     onSuccess: (newProduct) => {
       // Esta función se ejecuta si la mutación fue exitosa
       console.log("Producto agregado:", newProduct);
@@ -74,7 +74,7 @@ function Productos() {
       name: `Nuevo Producto ${Math.floor(Math.random() * 1000)}`,
       price: 9000,
     };
-    addProductoMutation.mutate(newProduct); // Dispara la mutación
+    addProductMutation.mutate(newProduct); // Dispara la mutación
   };
 
   if (isLoading) return <p>Cargando productos...</p>;
@@ -93,7 +93,7 @@ function Productos() {
       {/* </ul> */}
       <button
         onClick={handleAddProduct}
-        disabled={addProductoMutation.isPending} // Deshabilita el botón mientras la mutación está en curso
+        disabled={addProductMutation.isPending} // Deshabilita el botón mientras la mutación está en curso
         style={{
           marginTop: "20px",
           padding: "10px 20px",
@@ -104,18 +104,18 @@ function Productos() {
           cursor: "pointer",
         }}
       >
-        {addProductoMutation.isPending
+        {addProductMutation.isPending
           ? "Agregando..."
           : "Agregar Nuevo Producto"}
       </button>
-      {addProductoMutation.isError && (
+      {addProductMutation.isError && (
         <p style={{ color: "red" }}>
-          Error al agregar: {addProductoMutation.error.message}
+          Error al agregar: {addProductMutation.error.message}
         </p>
       )}
-      {addProductoMutation.isSuccess && (
+      {addProductMutation.isSuccess && (
         <p style={{ color: "green" }}>
-          Producto agregado! (ID: {addProductoMutation.data.id})
+          Producto agregado! (ID: {addProductMutation.data.id})
         </p>
       )}
     </div>
