@@ -1,0 +1,20 @@
+.controlled-form-container {
+  border: 1px solid #4caf50;
+  padding: 20px;
+  border-radius: 8px;
+  background-color: #e8f5e9;
+}
+
+.submit-button {
+  padding: 10px 15px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+}
+
+.error-message {
+  color: red;
+  font-size: 0.8em;
+  margin-top: 5px;
+}
