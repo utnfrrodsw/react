@@ -24,15 +24,15 @@ const AuthLayout = () => {
             <span className="icon">🏠</span>
             Inicio
           </Link>
-          <Link to="/app/dashboard" className="sidebar-link">
+          <Link to="/dashboard" className="sidebar-link">
             <span className="icon">📊</span>
             Panel de Control
           </Link>
-          <Link to="/app/products" className="sidebar-link">
+          <Link to="/dashboard/products" className="sidebar-link">
             <span className="icon">🧴</span>
             Productos
           </Link>
-          <Link to="/app/profile" className="sidebar-link">
+          <Link to="/dashboard/profile" className="sidebar-link">
             <span className="icon">👤</span>
             Perfil
           </Link>

@@ -25,7 +25,7 @@ const Login = () => {
           role: "Administrator",
         };
         login(userData);
-        navigate("/app/dashboard");
+        navigate("/dashboard");
         resolve();
       }, 1000);
     });

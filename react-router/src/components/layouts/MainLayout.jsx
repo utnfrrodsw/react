@@ -27,7 +27,7 @@ const MainLayout = () => {
             </Link>
             {isAuthenticated ? (
               <>
-                <Link to="/app/dashboard" className="nav-link">
+                <Link to="/dashboard" className="nav-link">
                   Panel de Control
                 </Link>
                 <button onClick={handleLogout} className="logout-btn">
