@@ -8,7 +8,7 @@ const Profile = () => {
   const mockProfile = {
     name: user?.name || "John Doe",
     email: user?.email || "john.doe@example.com",
-    role: "Administrator",
+    role: user.role,
     joinDate: "04/11/1983",
     lastLogin: "2 horas atrás",
     avatar: "👤",

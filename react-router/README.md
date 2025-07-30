@@ -10,3 +10,14 @@ Currently, two official plugins are available:
 ## Expanding the ESLint configuration
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+
+
+
+✔ Integrar Login, manejar error de autenticacion
+✔ Decodificar jwt y guardar user en estado
+✔ Persistir jwt
+✔ Agregar roles en protected route para admin y soporte
+✔ Ocultar un item de menu para alguno de los roles
+✔ Proteger el acceso por url a una page protegida
+✔ Verificar expiration del jwt
+- Interceptor axios, chequear en el backend

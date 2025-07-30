@@ -1,6 +1,6 @@
-import { Outlet, Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
-import './AuthLayout.css';
+import { Outlet, Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+import "./AuthLayout.css";
 
 const AuthLayout = () => {
   const { user, logout } = useAuth();
@@ -8,7 +8,7 @@ const AuthLayout = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/');
+    navigate("/");
   };
 
   return (
@@ -16,9 +16,9 @@ const AuthLayout = () => {
       <aside className="auth-sidebar">
         <div className="sidebar-header">
           <h2>DSWApp</h2>
-          <p>Bienvenido, {user?.name || 'User'}!</p>
+          <p>Bienvenido, {user?.name || "User"}!</p>
         </div>
-        
+
         <nav className="sidebar-nav">
           <Link to="/" className="sidebar-link">
             <span className="icon">🏠</span>
@@ -28,16 +28,18 @@ const AuthLayout = () => {
             <span className="icon">📊</span>
             Panel de Control
           </Link>
-          <Link to="/dashboard/products" className="sidebar-link">
-            <span className="icon">🧴</span>
-            Productos
-          </Link>
+          {user.role === "admin" && (
+            <Link to="/dashboard/products" className="sidebar-link">
+              <span className="icon">🧴</span>
+              Productos
+            </Link>
+          )}
           <Link to="/dashboard/profile" className="sidebar-link">
             <span className="icon">👤</span>
             Perfil
           </Link>
         </nav>
-        
+
         <div className="sidebar-footer">
           <button onClick={handleLogout} className="logout-btn">
             <span className="icon">🚪</span>
@@ -45,12 +47,12 @@ const AuthLayout = () => {
           </button>
         </div>
       </aside>
-      
+
       <main className="auth-content">
         <header className="auth-header">
           <h1>Area Protegida</h1>
         </header>
-        
+
         <div className="auth-main">
           <Outlet />
         </div>
@@ -59,4 +61,4 @@ const AuthLayout = () => {
   );
 };
 
-export default AuthLayout; 
+export default AuthLayout;

@@ -4,31 +4,19 @@ import { useForm } from "react-hook-form";
 import "./Login.css";
 
 const Login = () => {
-  const { login } = useAuth();
+  const { login, errorLogin } = useAuth();
   const navigate = useNavigate();
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm({
-    mode: 'onBlur'
+    mode: "onBlur",
   });
 
   const onSubmit = async (data) => {
-    // Simulate API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // Mock user data
-        const userData = {
-          name: "John Doe",
-          email: data.email,
-          role: "Administrator",
-        };
-        login(userData);
-        navigate("/dashboard");
-        resolve();
-      }, 1000);
-    });
+    await login(data)
+    navigate("/dashboard");
   };
 
   return (
@@ -93,6 +81,8 @@ const Login = () => {
           <button type="submit" className="login-btn" disabled={isSubmitting}>
             {isSubmitting ? "Ingresando..." : "Ingresar"}
           </button>
+
+          {errorLogin && <div className="error-message">{errorLogin}</div>}
         </form>
 
         <div className="login-footer">

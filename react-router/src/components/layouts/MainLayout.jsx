@@ -25,7 +25,7 @@ const MainLayout = () => {
             <Link to="/about" className="nav-link">
               Acerca de
             </Link>
-            {isAuthenticated ? (
+            {isAuthenticated() ? (
               <>
                 <Link to="/dashboard" className="nav-link">
                   Panel de Control
