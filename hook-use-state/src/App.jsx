@@ -72,12 +72,12 @@ function App() {
           count is {count}
         </button>
         <br />
-        <input type="text" value={name} onChange={handleInputValue} />
+        <input type="text" value={name} onChange={handleInputValue} placeholder='Ingrese su nombre' />
         <p>
           Nombre Ingresado: {name}
         </p>
         <hr />
-        <input type="text" value={newColor} onChange={handleInputColor} />
+        <input type="text" value={newColor} onChange={handleInputColor} placeholder='Ingrese un color' />
         <button onClick={addColor}>Agregar Color</button>
         <ul>
           { colors.map((color) => <li key={color}>{color}</li>) }
