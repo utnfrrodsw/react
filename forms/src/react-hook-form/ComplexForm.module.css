@@ -1,0 +1,98 @@
+.formContainer {
+  border: 1px solid #28a745;
+  padding: 20px;
+  border-radius: 8px;
+  background-color: #e6ffe6;
+}
+
+.inputGroup {
+  margin-bottom: 15px;
+}
+
+.inputGroupLarge {
+  margin-bottom: 20px;
+}
+
+.input {
+  margin-left: 10px;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.inputError {
+  margin-left: 10px;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid red;
+}
+
+.select {
+  margin-left: 10px;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.checkbox {
+  margin-right: 5px;
+}
+
+.error {
+  color: red;
+  font-size: 0.8em;
+  margin-top: 5px;
+}
+
+.submitButton {
+  padding: 10px 15px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.submitButtonDisabled {
+  padding: 10px 15px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-right: 10px;
+  opacity: 0.6;
+}
+
+.resetButton {
+  padding: 10px 15px;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.checkButton {
+  padding: 10px 15px;
+  background-color: #ffc107;
+  color: black;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.status {
+  margin-top: 15px;
+  font-size: 0.9em;
+}
+
+.valid {
+  color: green;
+}
+
+.invalid {
+  color: red;
+}

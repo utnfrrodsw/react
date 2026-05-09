@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import styles from "./Products.module.css";
 // https://tanstack.com/query/latest/docs/framework/react/overview
 
 // --- Simulación de una API ---
@@ -59,7 +60,7 @@ function Productos() {
     },
     onError: (err) => {
       // Esta función se ejecuta si la mutación falla
-      console.error(`Error al agregar el producto: ${err.message}`)
+      console.error(`Error al agregar el producto: ${err.message}`);
     },
   });
 
@@ -94,27 +95,19 @@ function Productos() {
       <button
         onClick={handleAddProduct}
         disabled={addProductMutation.isPending} // Deshabilita el botón mientras la mutación está en curso
-        style={{
-          marginTop: "20px",
-          padding: "10px 20px",
-          backgroundColor: "#4CAF50",
-          color: "white",
-          border: "none",
-          borderRadius: "5px",
-          cursor: "pointer",
-        }}
+        className={styles.button}
       >
         {addProductMutation.isPending
           ? "Agregando..."
           : "Agregar Nuevo Producto"}
       </button>
       {addProductMutation.isError && (
-        <p style={{ color: "red" }}>
+        <p className={styles.error}>
           Error al agregar: {addProductMutation.error.message}
         </p>
       )}
       {addProductMutation.isSuccess && (
-        <p style={{ color: "green" }}>
+        <p className={styles.success}>
           Producto agregado! (ID: {addProductMutation.data.id})
         </p>
       )}

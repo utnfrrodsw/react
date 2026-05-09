@@ -1,4 +1,5 @@
-import { useForm } from 'react-hook-form';
+import { useForm } from "react-hook-form";
+import styles from "./SimpleForm.module.css";
 
 function SimpleForm() {
   // 1. Inicializamos useForm. Nos da métodos como 'register' y 'handleSubmit'.
@@ -12,34 +13,31 @@ function SimpleForm() {
   };
 
   return (
-    <div style={{ border: '1px solid #ccc', padding: '20px', borderRadius: '8px', marginBottom: '30px' }}>
+    <div className={styles.formContainer}>
       <h2>1. Formulario Básico</h2>
       {/* 3. 'handleSubmit' envuelve tu función onSubmit para manejar el envío. */}
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div style={{ marginBottom: '10px' }}>
+        <div className={styles.inputGroup}>
           <label htmlFor="simpleName">Nombre:</label>
           {/* 4. 'register' vincula el input con React Hook Form.
               El atributo 'name' del input es crucial y debe ser único. */}
           <input
             type="text"
             id="simpleName"
-            {...register('name')}
-            style={{ marginLeft: '10px', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
+            {...register("name")}
+            className={styles.input}
           />
         </div>
-        <div style={{ marginBottom: '10px' }}>
+        <div className={styles.inputGroup}>
           <label htmlFor="simpleEmail">Email:</label>
           <input
             type="email"
             id="simpleEmail"
-            {...register('email')}
-            style={{ marginLeft: '10px', padding: '8px', borderRadius: '4px', border: '1px solid #ddd' }}
+            {...register("email")}
+            className={styles.input}
           />
         </div>
-        <button
-          type="submit"
-          style={{ padding: '10px 15px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
-        >
+        <button type="submit" className={styles.button}>
           Enviar Básico
         </button>
       </form>

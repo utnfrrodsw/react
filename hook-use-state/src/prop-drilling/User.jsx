@@ -2,11 +2,12 @@
 // Este componente no necesita el nombreDeUsuario para sí mismo,
 // pero lo recibe y lo pasa al Avatar.
 
-import Avatar from './Avatar';
+import Avatar from "./Avatar";
+import styles from "./User.module.css";
 
 function User({ name }) {
   return (
-    <div style={{ marginTop: '10px' }}>
+    <div className={styles.user}>
       <p>Bienvenido, </p>
       <Avatar name={name} /> {/* Pasa el dato al Avatar */}
     </div>

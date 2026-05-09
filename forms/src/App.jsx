@@ -1,14 +1,12 @@
-import './App.css'
-import ControlledForm from './ControlledForm'
-import ComplexForm from './react-hook-form/ComplexForm'
-import SimpleForm from './react-hook-form/SimpleForm'
-import UncontrolledForm from './UncontrolledForm'
+import "./App.css";
+import ControlledForm from "./ControlledForm";
+import ComplexForm from "./react-hook-form/ComplexForm";
+import SimpleForm from "./react-hook-form/SimpleForm";
+import UncontrolledForm from "./UncontrolledForm";
 
 function App() {
-
   return (
     <>
-      
       {/* <UncontrolledForm /> */}
       {/* <ControlledForm /> */}
 
@@ -16,7 +14,7 @@ function App() {
       {/* <SimpleForm /> */}
       <ComplexForm />
     </>
-  )
+  );
 }
 
-export default App
+export default App;

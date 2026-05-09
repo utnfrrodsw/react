@@ -1,9 +1,12 @@
-import './MemeFetcher.css'
-import useFetch from './hooks/useFetch';
+import styles from "./MemeFetcher.module.css";
+import useFetch from "./hooks/useFetch";
 
 const MemeFetcherV2 = () => {
-  
-  const { loading, error, data: memes} = useFetch('https://api.imgflip.com/get_memes');
+  const {
+    loading,
+    error,
+    data: memes,
+  } = useFetch("https://api.imgflip.com/get_memes");
 
   if (loading) {
     return <p>Cargando memes...</p>;
@@ -14,13 +17,13 @@ const MemeFetcherV2 = () => {
   }
 
   return (
-    <div className='meme-fetcher-container'>
+    <div className={styles.memeFetcherContainer}>
       <h2>Lista de Memes</h2>
       <ul>
-        {memes.data.memes.map(meme => (
+        {memes.data.memes.map((meme) => (
           <li key={meme.id}>
             {meme.name}
-            <img src={meme.url} alt={meme.name} style={{ maxWidth: '200px', maxHeight: '150px' }} />
+            <img src={meme.url} alt={meme.name} />
           </li>
         ))}
       </ul>

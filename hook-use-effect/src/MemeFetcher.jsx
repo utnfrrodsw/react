@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import './MemeFetcher.css'
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import styles from "./MemeFetcher.module.css";
+import axios from "axios";
 
 const MemeFetcher = () => {
   const [memes, setMemes] = useState([]);
@@ -10,7 +10,7 @@ const MemeFetcher = () => {
   useEffect(() => {
     const controller = new AbortController();
     const signal = controller.signal;
-    const apiUrl = 'https://api.imgflip.com/get_memes';
+    const apiUrl = "https://api.imgflip.com/get_memes";
 
     const fetchMemes = async () => {
       setLoading(true);
@@ -30,7 +30,7 @@ const MemeFetcher = () => {
       } catch (err) {
         // if (err.name === 'AbortError') { // check error when using fetch
         if (axios.isCancel(err)) {
-          console.log('Fetch aborted!');
+          console.log("Fetch aborted!");
         } else {
           setError(err.message);
         }
@@ -43,7 +43,7 @@ const MemeFetcher = () => {
 
     // Función de limpieza para abortar la petición si el componente se desmonta
     return () => {
-      console.log('Componente desmontándose, abortando la petición fetch...');
+      console.log("Componente desmontándose, abortando la petición fetch...");
       controller.abort();
     };
   }, []); // El array de dependencias vacío significa que se ejecuta solo al montar y desmontar
@@ -57,13 +57,13 @@ const MemeFetcher = () => {
   }
 
   return (
-    <div className='meme-fetcher-container'>
+    <div className={styles.memeFetcherContainer}>
       <h2>Lista de Memes</h2>
       <ul>
-        {memes.map(meme => (
+        {memes.map((meme) => (
           <li key={meme.id}>
             {meme.name}
-            <img src={meme.url} alt={meme.name} style={{ maxWidth: '200px', maxHeight: '150px' }} />
+            <img src={meme.url} alt={meme.name} />
           </li>
         ))}
       </ul>

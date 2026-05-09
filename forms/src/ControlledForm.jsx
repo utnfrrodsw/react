@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "./ControlledForm.css";
+import styles from "./ControlledForm.module.css";
 
 function ControlledForm() {
   // 1. Definimos el estado para cada campo del formulario
@@ -109,7 +109,7 @@ function ControlledForm() {
       console.log("Contraseña:", formData.password);
 
       alert(
-        `Formulario Controlado Enviado:\nNombre: ${formData.name}\nEmail: ${formData.email}`
+        `Formulario Controlado Enviado:\nNombre: ${formData.name}\nEmail: ${formData.email}`,
       );
 
       // Opcional: Limpiar el formulario después del envío
@@ -127,10 +127,10 @@ function ControlledForm() {
   };
 
   return (
-    <div className="controlled-form-container">
+    <div className={styles.controlledFormContainer}>
       <h2>Formulario Controlado</h2>
       <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: "15px" }}>
+        <div className={styles.inputGroup}>
           <label htmlFor="controlled-name">Nombre:</label>
           {/* 5. El valor del input está vinculado al estado y se actualiza con onChange */}
           <input
@@ -139,15 +139,10 @@ function ControlledForm() {
             name="name" // Importante: el 'name' debe coincidir con la clave en el estado
             value={formData.name}
             onChange={handleChangeName}
-            style={{
-              marginLeft: "10px",
-              padding: "8px",
-              borderRadius: "4px",
-              border: formData.nameError ? "1px solid red" : "1px solid #ddd",
-            }}
+            className={formData.nameError ? styles.inputError : styles.input}
           />
           {formData.nameError && (
-            <p className="error-message">{formData.nameError}</p>
+            <p className={styles.errorMessage}>{formData.nameError}</p>
           )}
         </div>
         <div style={{ marginBottom: "15px" }}>
@@ -158,15 +153,10 @@ function ControlledForm() {
             name="email"
             value={formData.email}
             onChange={handleChangeEmail}
-            style={{
-              marginLeft: "10px",
-              padding: "8px",
-              borderRadius: "4px",
-              border: formData.emailError ? "1px solid red" : "1px solid #ddd",
-            }}
+            className={formData.emailError ? styles.inputError : styles.input}
           />
           {formData.emailError && (
-            <p className="error-message">{formData.emailError}</p>
+            <p className={styles.errorMessage}>{formData.emailError}</p>
           )}
         </div>
         <div style={{ marginBottom: "15px" }}>
@@ -177,28 +167,15 @@ function ControlledForm() {
             name="password"
             value={formData.password}
             onChange={handleChangePassword}
-            style={{
-              marginLeft: "10px",
-              padding: "8px",
-              borderRadius: "4px",
-              border: formData.passwordError
-                ? "1px solid red"
-                : "1px solid #ddd",
-            }}
+            className={
+              formData.passwordError ? styles.inputError : styles.input
+            }
           />
           {formData.passwordError && (
-            <p className="error-message">{formData.passwordError}</p>
+            <p className={styles.errorMessage}>{formData.passwordError}</p>
           )}
         </div>
-        <button
-          type="submit"
-          className="submit-button"
-          disabled={
-            (formData.nameError || !formData.name) ||
-            (formData.emailError || !formData.email) ||
-            (formData.passwordError || !formData.password)
-          }
-        >
+        <button type="submit" className={styles.submitButton}>
           Enviar (Controlado)
         </button>
       </form>

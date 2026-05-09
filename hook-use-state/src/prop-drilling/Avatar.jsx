@@ -1,8 +1,10 @@
 // Avatar.jsx (Componente Objetivo - El más anidado)
 // Finalmente, este componente es el que realmente usa el nombreDeUsuario.
+import styles from "./Avatar.module.css";
+
 function Avatar({ name }) {
   return (
-    <div style={{ border: '1px solid blue', padding: '5px', display: 'inline-block', marginLeft: '5px' }}>
+    <div className={styles.avatar}>
       <span>{name}</span>
     </div>
   );

@@ -1,9 +1,8 @@
-import './MemeFetcher.css'
-import useMemes from './hooks/useQuery';
+import styles from "./MemeFetcher.module.css";
+import useMemes from "./hooks/useQuery";
 
 const MemeFetcherV3 = () => {
-  
-  const { error, isError, isLoading, memes} = useMemes();
+  const { error, isError, isLoading, memes } = useMemes();
 
   if (isLoading) {
     return <p>Cargando memes...</p>;
@@ -18,13 +17,13 @@ const MemeFetcherV3 = () => {
   }
 
   return (
-    <div className='meme-fetcher-container'>
+    <div className={styles.memeFetcherContainer}>
       <h2>Lista de Memes</h2>
       <ul>
-        {memes.map(meme => (
+        {memes.map((meme) => (
           <li key={meme.id}>
             {meme.name}
-            <img src={meme.url} alt={meme.name} style={{ maxWidth: '200px', maxHeight: '150px' }} />
+            <img src={meme.url} alt={meme.name} />
           </li>
         ))}
       </ul>
