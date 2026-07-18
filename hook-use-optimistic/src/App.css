@@ -1,0 +1,100 @@
+#root {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.description {
+  color: #888;
+  font-size: 0.95em;
+  margin-bottom: 1.5rem;
+}
+
+.todo-form {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.todo-form input {
+  flex: 1;
+  padding: 0.6em 1em;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: #ffffff;
+  color: #000000;
+  font-size: 1em;
+}
+
+.todo-list {
+  list-style: none;
+  padding: 0;
+  text-align: left;
+}
+
+.todo-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6em 0.8em;
+  border-radius: 8px;
+  margin-bottom: 0.4rem;
+  transition: opacity 0.3s, background 0.3s;
+}
+
+.todo-list li.sending {
+  opacity: 0.6;
+  background: rgba(255, 200, 50, 0.1);
+}
+
+.todo-list li.confirmed {
+  opacity: 1;
+  background: rgba(50, 205, 50, 0.1);
+}
+
+.todo-list li span:first-child {
+  flex: 1;
+}
+
+.badge {
+  font-size: 0.75em;
+  font-weight: 600;
+  padding: 0.25em 0.7em;
+  border-radius: 12px;
+  background: #f59e0b;
+  color: #000000;
+}
+
+.badge.ok {
+  background: #22c55e;
+  color: #ffffff;
+}
+
+.todo-list li button {
+  padding: 0.3em 0.6em;
+  font-size: 0.8em;
+  background: transparent;
+  color: #f66;
+  border: 1px solid #f66;
+}
+
+.todo-list li button:hover {
+  background: rgba(255, 100, 100, 0.15);
+}
+
+.pending {
+  color: #f0c040;
+  font-size: 0.9em;
+}
+
+.error {
+  color: #f66;
+  font-size: 0.9em;
+  margin-bottom: 0.5rem;
+}
+
+.empty {
+  color: #666;
+  font-style: italic;
+}

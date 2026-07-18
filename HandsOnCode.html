@@ -513,6 +513,215 @@
       opacity: 0.5;
     }
 
+    /* ─── Points & Progress ─── */
+    .points-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1.2rem;
+      flex-wrap: wrap;
+    }
+
+    .points-bar-track {
+      width: 220px;
+      height: 8px;
+      background: var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .points-bar-fill {
+      height: 100%;
+      background: var(--green);
+      border-radius: 4px;
+      transition: width 0.4s ease;
+    }
+
+    .points-label {
+      font-size: 0.85rem;
+      color: var(--green);
+      font-weight: 600;
+    }
+
+    /* ─── Card completion ─── */
+    .card.completed {
+      border-color: color-mix(in srgb, var(--green) 30%, transparent);
+      box-shadow: 0 0 20px color-mix(in srgb, var(--green) 5%, transparent);
+    }
+
+    .card.completed::before {
+      background: linear-gradient(90deg, var(--green), transparent 80%);
+    }
+
+    .card-actions {
+      margin-top: 1.2rem;
+      padding-top: 1rem;
+      border-top: 1px dashed var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      align-items: center;
+    }
+
+    .mark-complete-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 2px solid var(--green);
+      background: transparent;
+      color: var(--green);
+    }
+
+    .mark-complete-btn:hover {
+      background: var(--green-dim);
+    }
+
+    .mark-complete-btn.done {
+      background: var(--green);
+      color: #fff;
+      border-color: var(--green);
+    }
+
+    .mark-complete-btn.done:hover {
+      background: color-mix(in srgb, var(--green) 85%, #000);
+    }
+
+    /* ─── Bonus checkboxes ─── */
+    .bonus-check {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0.35rem 0.7rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+      user-select: none;
+    }
+
+    .bonus-check:hover {
+      background: var(--surface-hover);
+    }
+
+    .bonus-check.checked {
+      border-color: var(--bonus);
+      background: var(--bonus-dim);
+      color: var(--bonus);
+    }
+
+    .bonus-check input {
+      display: none;
+    }
+
+    .bonus-check .check-icon {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+
+    .bonus-check.checked .check-icon {
+      border-color: var(--bonus);
+      background: var(--bonus);
+      color: #fff;
+    }
+
+    /* ─── Hint area ─── */
+    .hint-area {
+      margin-top: 0.8rem;
+    }
+
+    .hint-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.4rem 0.85rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+
+    .hint-btn:hover:not(:disabled) {
+      background: var(--surface-hover);
+      color: var(--text);
+      border-color: var(--purple);
+    }
+
+    .hint-btn:disabled {
+      opacity: 0.6;
+      cursor: default;
+      border-color: var(--purple);
+      color: var(--purple);
+      background: var(--purple-dim);
+    }
+
+    .hint-content {
+      display: none;
+      margin-top: 0.6rem;
+      padding: 0.8rem 1rem;
+      background: var(--purple-dim);
+      border-left: 3px solid var(--purple);
+      border-radius: 0 8px 8px 0;
+      font-size: 0.88rem;
+      color: var(--text);
+      line-height: 1.6;
+      animation: hintFade 0.3s ease;
+    }
+
+    .hint-content.open {
+      display: block;
+    }
+
+    .hint-content code {
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+      font-size: 0.82rem;
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      background: var(--code-bg);
+      color: var(--accent);
+      border: 1px solid var(--border);
+    }
+
+    @keyframes hintFade {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── Sidebar completion dot ─── */
+    .sidebar-link .check-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      flex-shrink: 0;
+      margin-left: auto;
+      display: none;
+    }
+
+    .sidebar-link .check-dot.visible {
+      display: block;
+    }
+
     footer {
       text-align: center;
       padding: 2rem;
@@ -570,22 +779,27 @@
     <a href="#useState" class="sidebar-link" data-card="0">
       <span class="num" style="background:var(--blue-dim);color:var(--blue);">01</span>
       useState
+      <span class="check-dot" data-exercise="useState"></span>
     </a>
     <a href="#useEffect" class="sidebar-link" data-card="1">
       <span class="num" style="background:var(--green-dim);color:var(--green);">02</span>
       useEffect
+      <span class="check-dot" data-exercise="useEffect"></span>
     </a>
     <a href="#useReducer" class="sidebar-link" data-card="2">
       <span class="num" style="background:var(--orange-dim);color:var(--orange);">03</span>
       useReducer
+      <span class="check-dot" data-exercise="useReducer"></span>
     </a>
     <a href="#useContext" class="sidebar-link" data-card="3">
       <span class="num" style="background:var(--purple-dim);color:var(--purple);">04</span>
       useContext
+      <span class="check-dot" data-exercise="useContext"></span>
     </a>
     <a href="#useRef" class="sidebar-link" data-card="4">
       <span class="num" style="background:var(--pink-dim);color:var(--pink);">05</span>
       useRef
+      <span class="check-dot" data-exercise="useRef"></span>
     </a>
 
     <div class="sidebar-divider"></div>
@@ -594,23 +808,32 @@
     <a href="#forms" class="sidebar-link" data-card="5">
       <span class="num" style="background:var(--teal-dim);color:var(--teal);">06</span>
       Forms
+      <span class="check-dot" data-exercise="forms"></span>
     </a>
     <a href="#router" class="sidebar-link" data-card="6">
       <span class="num" style="background:var(--cyan-dim);color:var(--cyan);">07</span>
       React Router
+      <span class="check-dot" data-exercise="router"></span>
     </a>
     <a href="#zustand" class="sidebar-link" data-card="7">
       <span class="num" style="background:rgba(248,113,113,0.1);color:var(--red);">08</span>
       Zustand
+      <span class="check-dot" data-exercise="zustand"></span>
     </a>
     <a href="#testing" class="sidebar-link" data-card="8">
       <span class="num" style="background:var(--purple-dim);color:var(--purple);">09</span>
       Testing
+      <span class="check-dot" data-exercise="testing"></span>
+    </a>
+    <a href="#useOptimistic" class="sidebar-link" data-card="9">
+      <span class="num" style="background:rgba(251,191,36,0.12);color:#f59e0b;">10</span>
+      useOptimistic
+      <span class="check-dot" data-exercise="useOptimistic"></span>
     </a>
 
     <div class="sidebar-divider"></div>
     <div class="sidebar-footer">
-      9 proyectos &middot; 18 extras
+      10 proyectos &middot; 20 extras
     </div>
   </nav>
 
@@ -621,9 +844,15 @@
       <h1><span>React</span> &mdash; Hands-On Code</h1>
       <p>Ejercicios practicos del curso UTN 2026. Completa cada ejercicio en la carpeta de su proyecto.</p>
       <div class="stats">
-        <div class="stat"><strong>9</strong> proyectos</div>
-        <div class="stat"><strong>9</strong> ejercicios</div>
-        <div class="stat"><strong>18</strong> extras bonus</div>
+        <div class="stat"><strong>10</strong> proyectos</div>
+        <div class="stat"><strong>10</strong> ejercicios</div>
+        <div class="stat"><strong>20</strong> extras bonus</div>
+      </div>
+      <div class="points-bar">
+        <span class="points-label" id="points-text">0 / 200 puntos</span>
+        <div class="points-bar-track">
+          <div class="points-bar-fill" id="points-fill" style="width:0%"></div>
+        </div>
       </div>
     </section>
 
@@ -653,6 +882,17 @@
             <li>Agregar un boton "Editar" que permita modificar el texto de una tarea existente inline</li>
           </ul>
         </div>
+        <div class="hint-area">
+          <button class="hint-btn" onclick="revealHint('useState')">Ver Hint (-3 pts)</button>
+          <div class="hint-content" id="hint-useState">
+            <p>Empezá con un <code>useState([])</code> para las tareas. Para toggle, usá <code>map()</code> retornando un objeto nuevo con <code>completed</code> invertido. Para eliminar, <code>filter()</code> por id. El conteo de pendientes es una variable derivada: <code>tasks.filter(t =&gt; !t.completed).length</code>, no un segundo useState.</p>
+          </div>
+        </div>
+        <div class="card-actions">
+          <label class="bonus-check" data-exercise="useState" data-bonus="0"><span class="check-icon">&#10003;</span> Bonus 1 completado</label>
+          <label class="bonus-check" data-exercise="useState" data-bonus="1"><span class="check-icon">&#10003;</span> Bonus 2 completado</label>
+          <button class="mark-complete-btn" onclick="toggleComplete('useState')">Marcar como completado</button>
+        </div>
       </article>
 
       <!-- 2. useEffect -->
@@ -678,6 +918,17 @@
             <li>Usar TanStack React Query (<code>useQuery</code>) para manejar el cache de busquedas anteriores, de modo que si el usuario busca algo, vuelve atras y busca lo mismo, no haga un nuevo request</li>
           </ul>
         </div>
+        <div class="hint-area">
+          <button class="hint-btn" onclick="revealHint('useEffect')">Ver Hint (-3 pts)</button>
+          <div class="hint-content" id="hint-useEffect">
+            <p>El fetch va dentro de un <code>useEffect(..., [])</code> para que corra al montar. El cleanup returnea una función que aborta con <code>AbortController</code>. Para debounce, creá un segundo <code>useEffect</code> que dependa del término de búsqueda y use <code>setTimeout</code> para postergar el fetch 500ms, limpiando el timeout anterior en cada render.</p>
+          </div>
+        </div>
+        <div class="card-actions">
+          <label class="bonus-check" data-exercise="useEffect" data-bonus="0"><span class="check-icon">&#10003;</span> Bonus 1 completado</label>
+          <label class="bonus-check" data-exercise="useEffect" data-bonus="1"><span class="check-icon">&#10003;</span> Bonus 2 completado</label>
+          <button class="mark-complete-btn" onclick="toggleComplete('useEffect')">Marcar como completado</button>
+        </div>
       </article>
 
       <!-- 3. useReducer -->
@@ -694,6 +945,15 @@
           <li>Mover la logica del reducer y los tipos de accion, del componente Carrito a un archivo <code>cartReducer.js</code></li>
           <li>La informacion del carrito se debe poder consumir desde el componente Carrito y desde el App component. Ver de que manera se puede compartir ese estado.</li>
         </ul>
+        <div class="hint-area">
+          <button class="hint-btn" onclick="revealHint('useReducer')">Ver Hint (-3 pts)</button>
+          <div class="hint-content" id="hint-useReducer">
+            <p>Creamos un archivo separado <code>cartReducer.js</code> con la función reducer exportada y los tipos de acción como constantes. El componente que necesita estado comparte un contexto con <code>useReducer</code> y los demás componentes consumen ese contexto.</p>
+          </div>
+        </div>
+        <div class="card-actions">
+          <button class="mark-complete-btn" onclick="toggleComplete('useReducer')">Marcar como completado</button>
+        </div>
       </article>
 
       <!-- 4. useContext -->
@@ -717,6 +977,16 @@
           <ul class="bonus-list">
             <li>Al cambiar el lenguaje de la aplicacion, si el usuario apreta F5 y recarga la pagina, se vuelve a iniciar con el idioma por default (<code>en</code>). Implementar una manera de evitar esta situacion, de modo tal que al refrescar la pagina, el idioma en el cual se muestre la aplicacion sea el ultimo que el usuario selecciono.</li>
           </ul>
+        </div>
+        <div class="hint-area">
+          <button class="hint-btn" onclick="revealHint('useContext')">Ver Hint (-3 pts)</button>
+          <div class="hint-content" id="hint-useContext">
+            <p>Creá el contexto con <code>createContext()</code>, envolvé la app con <code>&lt;LanguageContext.Provider value={...}&gt;</code>, y consumí con un custom hook <code>useLanguage()</code> que llame <code>useContext(LanguageContext)</code>. Para persistir el idioma, guardalo en <code>localStorage</code> y leelo al inicializar el estado.</p>
+          </div>
+        </div>
+        <div class="card-actions">
+          <label class="bonus-check" data-exercise="useContext" data-bonus="0"><span class="check-icon">&#10003;</span> Bonus 1 completado</label>
+          <button class="mark-complete-btn" onclick="toggleComplete('useContext')">Marcar como completado</button>
         </div>
       </article>
 
@@ -742,6 +1012,17 @@
             <li>Agregar un boton "Insertar plantilla" que usando <code>ref.current.focus()</code> posicione el cursor en el textarea y con <code>ref.current.setRangeText()</code> inserte un texto predefinido en la posicion del cursor sin borrar lo que ya se escribio</li>
             <li>Agregar un segundo <code>useRef</code> para hacer scroll automatico al ultimo mensaje de la lista cuando se envie uno nuevo, usando <code>ref.current.scrollIntoView({ behavior: "smooth" })</code></li>
           </ul>
+        </div>
+        <div class="hint-area">
+          <button class="hint-btn" onclick="revealHint('useRef')">Ver Hint (-3 pts)</button>
+          <div class="hint-content" id="hint-useRef">
+            <p>Inicializá con <code>useRef(null)</code>. Accedés al DOM con <code>ref.current</code>. Importante: useRef <strong>no</strong> causa re-renders cuando cambia, lo que lo hace perfecto para almacenar valores previos o referencias a nodos DOM. Para auto-focus, usá <code>ref.current.focus()</code> dentro de un useEffect con dependencias vacías.</p>
+          </div>
+        </div>
+        <div class="card-actions">
+          <label class="bonus-check" data-exercise="useRef" data-bonus="0"><span class="check-icon">&#10003;</span> Bonus 1 completado</label>
+          <label class="bonus-check" data-exercise="useRef" data-bonus="1"><span class="check-icon">&#10003;</span> Bonus 2 completado</label>
+          <button class="mark-complete-btn" onclick="toggleComplete('useRef')">Marcar como completado</button>
         </div>
       </article>
 
@@ -769,6 +1050,17 @@
             <li>Simular un submit asincrono (setTimeout de 2 segundos) mostrando un spinner en el boton mientras se "envia", y al completar mostrar un mensaje de exito y resetear el formulario con <code>reset()</code></li>
           </ul>
         </div>
+        <div class="hint-area">
+          <button class="hint-btn" onclick="revealHint('forms')">Ver Hint (-3 pts)</button>
+          <div class="hint-content" id="hint-forms">
+            <p>Instalá: <code>npm i react-hook-form zod @hookform/resolvers</code>. Definí el schema de zod primero, pasalo a <code>zodResolver(schema)</code> en <code>useForm()</code>. Los errores de validación se leen de <code>formState.errors</code>. Usá <code>watch()</code> para observar cambios en tiempo real (como fortaleza de contraseña).</p>
+          </div>
+        </div>
+        <div class="card-actions">
+          <label class="bonus-check" data-exercise="forms" data-bonus="0"><span class="check-icon">&#10003;</span> Bonus 1 completado</label>
+          <label class="bonus-check" data-exercise="forms" data-bonus="1"><span class="check-icon">&#10003;</span> Bonus 2 completado</label>
+          <button class="mark-complete-btn" onclick="toggleComplete('forms')">Marcar como completado</button>
+        </div>
       </article>
 
       <!-- 7. React Router -->
@@ -795,6 +1087,17 @@
             <li>Implementar una "404" especifica para posts que no existan, diferenciandola de la 404 general de la app</li>
           </ul>
         </div>
+        <div class="hint-area">
+          <button class="hint-btn" onclick="revealHint('router')">Ver Hint (-3 pts)</button>
+          <div class="hint-content" id="hint-router">
+            <p>Usá <code>&lt;Routes&gt;</code> y <code>&lt;Route&gt;</code> para definir rutas. Para anidar, agregá <code>&lt;Outlet/&gt;</code> en el componente padre. Rutas protegidas: un wrapper que verifique estado de auth. Lazy loading: <code>const Page = React.lazy(() =&gt; import('./Page'))</code> con <code>&lt;Suspense fallback={...}&gt;</code> para el fallback.</p>
+          </div>
+        </div>
+        <div class="card-actions">
+          <label class="bonus-check" data-exercise="router" data-bonus="0"><span class="check-icon">&#10003;</span> Bonus 1 completado</label>
+          <label class="bonus-check" data-exercise="router" data-bonus="1"><span class="check-icon">&#10003;</span> Bonus 2 completado</label>
+          <button class="mark-complete-btn" onclick="toggleComplete('router')">Marcar como completado</button>
+        </div>
       </article>
 
       <!-- 8. Zustand -->
@@ -819,6 +1122,17 @@
             <li>Agregar un boton "Limpiar completadas" que vacie el carrito</li>
             <li>Permitir editar la cantidad de cada item en el carrito desde un input numerico</li>
           </ul>
+        </div>
+        <div class="hint-area">
+          <button class="hint-btn" onclick="revealHint('zustand')">Ver Hint (-3 pts)</button>
+          <div class="hint-content" id="hint-zustand">
+            <p>Creamos stores con <code>create((set, get) =&gt; ({...}))</code>. Para acciones async, usá <code>set</code> dentro de una función async. Separen responsabilidades: un store para items del carrito, otro para catálogo de productos. Middleware <code>persist</code> de zustand para localStorage.</p>
+          </div>
+        </div>
+        <div class="card-actions">
+          <label class="bonus-check" data-exercise="zustand" data-bonus="0"><span class="check-icon">&#10003;</span> Bonus 1 completado</label>
+          <label class="bonus-check" data-exercise="zustand" data-bonus="1"><span class="check-icon">&#10003;</span> Bonus 2 completado</label>
+          <button class="mark-complete-btn" onclick="toggleComplete('zustand')">Marcar como completado</button>
         </div>
       </article>
 
@@ -848,6 +1162,56 @@
             <li>Simular una operacion asincrona (como guardar en localStorage con setTimeout) y usar <code>waitFor</code> o <code>findBy*</code> para verificar el resultado</li>
             <li>Testear el caso edge de intentar agregar una tarea vacia y verificar que no se agregue, y testear que el contador de pendientes se actualice correctamente en cada operacion</li>
           </ul>
+        </div>
+        <div class="hint-area">
+          <button class="hint-btn" onclick="revealHint('testing')">Ver Hint (-3 pts)</button>
+          <div class="hint-content" id="hint-testing">
+            <p>Usá <code>@testing-library/react</code> con <code>render()</code>, <code>screen</code> y <code>userEvent</code>. Para tests asíncronos: <code>await userEvent.type(input, 'text')</code> seguido de asserts con <code>screen.getByText()</code>. Para operaciones async: <code>await waitFor(() =&gt; expect(...))</code>.</p>
+          </div>
+        </div>
+        <div class="card-actions">
+          <label class="bonus-check" data-exercise="testing" data-bonus="0"><span class="check-icon">&#10003;</span> Bonus 1 completado</label>
+          <label class="bonus-check" data-exercise="testing" data-bonus="1"><span class="check-icon">&#10003;</span> Bonus 2 completado</label>
+          <button class="mark-complete-btn" onclick="toggleComplete('testing')">Marcar como completado</button>
+        </div>
+      </article>
+
+      <!-- 10 ─ useOptimistic -->
+      <article class="card" id="useOptimistic" data-index="9">
+        <div class="card-head">
+          <div class="card-num" style="background:rgba(251,191,36,0.12);color:#f59e0b;">10</div>
+          <h2>useOptimistic</h2>
+          <div class="card-folder">hook-use-optimistic/</div>
+        </div>
+        <div class="exercise">
+          <strong>Ejercicio:</strong> Crear un sistema de "Me gusta" (Likes) para una lista de publicaciones que demuestre el uso de <code>useOptimistic</code> para actualizaciones optimistas ante una llamada async al servidor.
+        </div>
+        <ul class="requirements">
+          <li>Crear un componente <code>PostList</code> que renderice una lista de publicaciones, cada una con un boton de "Me gusta" y un contador de likes</li>
+          <li>El estado real de las publicaciones se maneja con <code>useState</code> (array de objetos con la forma: <code>{ id, title, likes, likedByMe }</code>)</li>
+          <li>Usar <code>useOptimistic</code> para que al hacer clic en "Me gusta", el contador aumente inmediatamente en la UI (actualizacion optimista) sin esperar la respuesta del servidor</li>
+          <li>Simular una llamada al servidor con <code>setTimeout</code> (1-2 segundos) que falle aleatoriamente (~30% de probabilidad)</li>
+          <li>Si la llamada falla, el estado optimista debe revertirse automaticamente al estado real (el contador vuelve al valor anterior)</li>
+          <li>Si la llamada es exitosa, actualizar el estado real con <code>setPosts</code></li>
+          <li>Usar <code>useTransition</code> para mostrar un estado de "cargando" mientras la operacion esta en curso</li>
+        </ul>
+        <div class="bonus-section">
+          <div class="bonus-label">Extras Bonus</div>
+          <ul class="bonus-list">
+            <li>Agregar un boton de "No me gusta" que remueva el like de forma optimista, invirtiendo la logica del <code>updateOptimistic</code></li>
+            <li>Agregar un campo de texto para comentar en cada publicacion, donde el comentario aparezca optimistamente en la lista antes de que el servidor confirme su guardado</li>
+          </ul>
+        </div>
+        <div class="hint-area">
+          <button class="hint-btn" onclick="revealHint('useOptimistic')">Ver Hint (-3 pts)</button>
+          <div class="hint-content" id="hint-useOptimistic">
+            <p><code>useOptimistic(state, updateFn)</code> retorna <code>[optimistic, addOptimistic]</code>. Llamá <code>addOptimistic(newValue)</code> dentro de un <code>startTransition</code> async. El estado optimista se revierte automáticamente cuando la transición completa (o la función async lanza error). Importante: el <code>updateOptimistic</code> debe deduplicar por <code>id</code> para evitar colisiones de keys de React.</p>
+          </div>
+        </div>
+        <div class="card-actions">
+          <label class="bonus-check" data-exercise="useOptimistic" data-bonus="0"><span class="check-icon">&#10003;</span> Bonus 1 completado</label>
+          <label class="bonus-check" data-exercise="useOptimistic" data-bonus="1"><span class="check-icon">&#10003;</span> Bonus 2 completado</label>
+          <button class="mark-complete-btn" onclick="toggleComplete('useOptimistic')">Marcar como completado</button>
         </div>
       </article>
 
@@ -910,6 +1274,141 @@
 
       window.addEventListener('scroll', update, { passive: true });
       update();
+    })();
+
+    // ─── Points & Progress System ───
+    (function() {
+      var STORAGE_KEY = 'hoc-progress';
+      var BASE_POINTS = 10;
+      var BONUS_POINTS = 5;
+      var HINT_PENALTY = 3;
+      var MAX_POINTS = 200;
+
+      var exercises = ['useState', 'useEffect', 'useReducer', 'useContext', 'useRef', 'forms', 'router', 'zustand', 'testing', 'useOptimistic'];
+      var bonusCounts = { useState: 2, useEffect: 2, useReducer: 0, useContext: 1, useRef: 2, forms: 2, router: 2, zustand: 2, testing: 2, useOptimistic: 2 };
+
+      function loadProgress() {
+        try {
+          var raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) return JSON.parse(raw);
+        } catch (e) {}
+        return { completed: [], bonuses: {}, hintsUsed: {} };
+      }
+
+      function saveProgress(data) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      }
+
+      function calculatePoints(progress) {
+        var pts = 0;
+        progress.completed.forEach(function(id) { pts += BASE_POINTS; });
+        for (var id in progress.bonuses) { pts += progress.bonuses[id] * BONUS_POINTS; }
+        for (var id in progress.hintsUsed) { pts -= progress.hintsUsed[id] * HINT_PENALTY; }
+        return Math.max(0, Math.min(MAX_POINTS, pts));
+      }
+
+      function updateUI() {
+        var progress = loadProgress();
+        var pts = calculatePoints(progress);
+
+        // Hero points bar
+        var textEl = document.getElementById('points-text');
+        var fillEl = document.getElementById('points-fill');
+        if (textEl) textEl.textContent = pts + ' / ' + MAX_POINTS + ' puntos';
+        if (fillEl) fillEl.style.width = Math.round((pts / MAX_POINTS) * 100) + '%';
+
+        // Cards
+        exercises.forEach(function(id) {
+          var card = document.getElementById(id);
+          if (!card) return;
+
+          var isCompleted = progress.completed.indexOf(id) !== -1;
+          card.classList.toggle('completed', isCompleted);
+
+          var btn = card.querySelector('.mark-complete-btn');
+          if (btn) {
+            btn.classList.toggle('done', isCompleted);
+            btn.textContent = isCompleted ? 'Completado ✓' : 'Marcar como completado';
+          }
+
+          // Bonuses
+          card.querySelectorAll('.bonus-check').forEach(function(label) {
+            var bonusIdx = parseInt(label.getAttribute('data-bonus'));
+            var used = (progress.bonuses[id] || 0) > bonusIdx;
+            label.classList.toggle('checked', used);
+            var input = label.querySelector('input');
+            if (input) input.checked = used;
+          });
+
+          // Hint
+          var hintBtn = card.querySelector('.hint-btn');
+          var hintContent = card.querySelector('.hint-content');
+          if (hintBtn && hintContent) {
+            var hintsUsed = progress.hintsUsed[id] || 0;
+            if (hintsUsed > 0) {
+              hintBtn.disabled = true;
+              hintBtn.textContent = 'Hint revelado (-3 pts)';
+              hintContent.classList.add('open');
+            } else {
+              hintBtn.disabled = false;
+              hintBtn.textContent = 'Ver Hint (-3 pts)';
+              hintContent.classList.remove('open');
+            }
+          }
+        });
+
+        // Sidebar dots
+        document.querySelectorAll('.check-dot').forEach(function(dot) {
+          var id = dot.getAttribute('data-exercise');
+          dot.classList.toggle('visible', progress.completed.indexOf(id) !== -1);
+        });
+      }
+
+      // ─── Global functions ───
+      window.toggleComplete = function(id) {
+        var progress = loadProgress();
+        var idx = progress.completed.indexOf(id);
+        if (idx === -1) {
+          progress.completed.push(id);
+        } else {
+          progress.completed.splice(idx, 1);
+        }
+        saveProgress(progress);
+        updateUI();
+      };
+
+      window.toggleBonus = function(id, bonusIdx) {
+        var progress = loadProgress();
+        if (!progress.bonuses[id]) progress.bonuses[id] = 0;
+        if (progress.bonuses[id] > bonusIdx) {
+          progress.bonuses[id] = bonusIdx;
+        } else {
+          progress.bonuses[id] = bonusIdx + 1;
+        }
+        saveProgress(progress);
+        updateUI();
+      };
+
+      window.revealHint = function(id) {
+        var progress = loadProgress();
+        if (!progress.hintsUsed[id]) progress.hintsUsed[id] = 0;
+        progress.hintsUsed[id]++;
+        saveProgress(progress);
+        updateUI();
+      };
+
+      // ─── Bonus check click handlers ───
+      document.querySelectorAll('.bonus-check').forEach(function(label) {
+        label.addEventListener('click', function(e) {
+          e.preventDefault();
+          var id = label.getAttribute('data-exercise');
+          var bonusIdx = parseInt(label.getAttribute('data-bonus'));
+          window.toggleBonus(id, bonusIdx);
+        });
+      });
+
+      // ─── Initialize ───
+      updateUI();
     })();
   </script>
 
