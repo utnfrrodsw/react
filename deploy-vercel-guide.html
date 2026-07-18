@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deploy de Frontend en Vercel — Guia Paso a Paso</title>
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --surface2: #1e1e1e;
+      --border: #2a2a2a;
+      --text: #e5e5e5;
+      --text-dim: #888;
+      --accent: #0070f3;
+      --accent2: #7928ca;
+      --green: #0cce6b;
+      --orange: #f5a623;
+      --red: #ee0000;
+      --code-bg: #111;
+      --radius: 12px;
+      --sidebar-w: 240px;
+    }
+
+    html.light {
+      --bg: #ffffff;
+      --surface: #f5f5f5;
+      --surface2: #ebebeb;
+      --border: #ddd;
+      --text: #1a1a1a;
+      --text-dim: #666;
+      --code-bg: #f0f0f0;
+    }
+
+    html.light pre { color: #1e1e1e; }
+    html.light code:not(pre code) { color: #0a6abf; }
+    html.light .file-tree { color: #555; }
+    html.light .file-tree .folder { color: #0a6abf; }
+    html.light .file-tree .file { color: #1e1e1e; }
+    html.light .step::before { color: #ddd; }
+    html.light .sidebar a { color: #666; }
+    html.light .sidebar a:hover { color: var(--accent); }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    /* ── Sidebar TOC ── */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: var(--sidebar-w);
+      height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 2rem 1.25rem;
+      overflow-y: auto;
+      z-index: 100;
+    }
+
+    .sidebar h3 {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 1rem;
+    }
+
+    .sidebar ol {
+      padding-left: 1.25rem;
+      list-style: none;
+      counter-reset: toc-counter;
+    }
+
+    .sidebar ol li {
+      counter-increment: toc-counter;
+      margin-bottom: 0.35rem;
+      position: relative;
+    }
+
+    .sidebar ol li::before {
+      content: counter(toc-counter, decimal-leading-zero);
+      position: absolute;
+      left: -1.4rem;
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .sidebar a {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 0.82rem;
+      transition: color 0.15s;
+      display: block;
+      padding: 0.2rem 0;
+    }
+
+    .sidebar a:hover {
+      color: var(--accent);
+    }
+
+    .sidebar .sidebar-title {
+      font-size: 1rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── Main content ── */
+    .main {
+      margin-left: var(--sidebar-w);
+      padding: 2.5rem 3rem;
+      max-width: 820px;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      color: var(--text-dim);
+      font-size: 1rem;
+      margin-bottom: 3rem;
+    }
+
+    .step {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .step::before {
+      content: attr(data-step);
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      font-size: 3rem;
+      font-weight: 800;
+      color: var(--border);
+      line-height: 1;
+    }
+
+    .step h2 {
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .step h2 .icon {
+      font-size: 1.1rem;
+    }
+
+    .step p, .step li {
+      color: var(--text);
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .step ul {
+      padding-left: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      overflow-x: auto;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      margin: 0.75rem 0;
+      font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace;
+      color: #c9d1d9;
+    }
+
+    code {
+      font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace;
+      background: var(--surface2);
+      padding: 0.15em 0.4em;
+      border-radius: 4px;
+      font-size: 0.88em;
+      color: #79c0ff;
+    }
+
+    pre code {
+      background: none;
+      padding: 0;
+      color: inherit;
+    }
+
+    .warning {
+      background: rgba(245,166,35,0.08);
+      border-left: 3px solid var(--orange);
+      border-radius: 0 8px 8px 0;
+      padding: 1rem 1.25rem;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+    }
+
+    .warning strong { color: var(--orange); }
+
+    .info {
+      background: rgba(0,112,243,0.08);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 8px 8px 0;
+      padding: 1rem 1.25rem;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+    }
+
+    .info strong { color: var(--accent); }
+
+    .success {
+      background: rgba(0,206,107,0.08);
+      border-left: 3px solid var(--green);
+      border-radius: 0 8px 8px 0;
+      padding: 1rem 1.25rem;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+    }
+
+    .success strong { color: var(--green); }
+
+    .env-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.88rem;
+    }
+
+    .env-table th,
+    .env-table td {
+      text-align: left;
+      padding: 0.6rem 0.8rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .env-table th {
+      color: var(--text-dim);
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .env-table td code {
+      font-size: 0.82rem;
+    }
+
+    .checklist {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .checklist li {
+      padding: 0.4rem 0;
+      padding-left: 1.8rem;
+      position: relative;
+    }
+
+    .checklist li::before {
+      content: '\2610';
+      position: absolute;
+      left: 0;
+      font-size: 1.1rem;
+    }
+
+    .file-tree {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.85rem;
+      line-height: 1.8;
+      color: #8b949e;
+      margin: 0.75rem 0;
+    }
+
+    .file-tree .folder { color: #79c0ff; }
+    .file-tree .file   { color: #c9d1d9; }
+    .file-tree .env    { color: var(--orange); }
+
+    footer {
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.8rem;
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── Theme toggle button ── */
+    .theme-toggle {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.25rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      width: 36px;
+      height: 36px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .theme-toggle:hover {
+      background: var(--border);
+    }
+
+    html:not(.light) .theme-toggle .icon-sun { display: inline; }
+    html:not(.light) .theme-toggle .icon-moon { display: none; }
+    html.light .theme-toggle .icon-sun { display: none; }
+    html.light .theme-toggle .icon-moon { display: inline; }
+
+    /* ── Responsive: sidebar collapses on small screens ── */
+    @media (max-width: 768px) {
+      .sidebar {
+        position: static;
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding: 1.5rem;
+      }
+
+      .theme-toggle {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+      }
+
+      .sidebar ol {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem 1rem;
+        padding-left: 0;
+      }
+
+      .sidebar ol li::before {
+        display: none;
+      }
+
+      .sidebar a {
+        font-size: 0.78rem;
+      }
+
+      .main {
+        margin-left: 0;
+        padding: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar TOC -->
+  <nav class="sidebar">
+    <div class="sidebar-title">Vercel Deploy Guide</div>
+    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Cambiar tema">
+      <span class="icon-sun">&#x2600;&#xFE0F;</span>
+      <span class="icon-moon">&#x1F319;</span>
+    </button>
+    <h3>Indice</h3>
+    <ol>
+      <li><a href="#prerequisitos">Prerequisitos</a></li>
+      <li><a href="#estructura">Estructura del proyecto</a></li>
+      <li><a href="#variables">Variables de entorno</a></li>
+      <li><a href="#config-vercel">Configuracion de Vercel</a></li>
+      <li><a href="#conectar-repo">Conectar repositorio</a></li>
+      <li><a href="#build-settings">Build & Output</a></li>
+      <li><a href="#env-vercel">Env vars en Vercel</a></li>
+      <li><a href="#deploy-preview">Deploy previews</a></li>
+      <li><a href="#dominio">Dominio personalizado</a></li>
+      <li><a href="#post-deploy">Post-deploy</a></li>
+      <li><a href="#ci-cd">CI/CD avanzado</a></li>
+      <li><a href="#troubleshooting">Troubleshooting</a></li>
+    </ol>
+  </nav>
+
+  <!-- Main content -->
+  <div class="main">
+
+    <h1>Deploy de Frontend en Vercel</h1>
+    <p class="subtitle">Guia completa paso a paso — desde el repo local hasta produccion.</p>
+
+    <!-- STEP 1 -->
+    <div class="step" data-step="01" id="prerequisitos">
+      <h2><span class="icon">&#x2705;</span> Prerequisitos</h2>
+      <p>Antes de empezar, asegurate de tener:</p>
+      <ul>
+        <li>Una cuenta en <a href="https://vercel.com" style="color:var(--accent)">vercel.com</a> (el plan <strong>Hobby</strong> es gratis y alcanza para proyectos personales)</li>
+        <li>Node.js <strong>v18+</strong> instalado (<code>node -v</code>)</li>
+        <li>Un repositorio en <strong>GitHub</strong>, <strong>GitLab</strong> o <strong>Bitbucket</strong></li>
+        <li>El CLI de Vercel instalado (opcional pero recomendado):</li>
+      </ul>
+      <pre><code>npm i -g vercel</code></pre>
+      <div class="info">
+        <strong>Tip:</strong> Podes hacer todo desde la CLI o desde la interfaz web. Esta guia cubre ambos flujos.
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step" data-step="02" id="estructura">
+      <h2><span class="icon">&#x1F4C1;</span> Estructura del proyecto</h2>
+      <p>Vercel detecta automaticamente frameworks como React, Next.js, Vue, Angular, etc. Asegurate de que tu proyecto tenga esta estructura minima:</p>
+      <div class="file-tree">
+<span class="folder">mi-frontend/</span>
+  <span class="file">package.json</span>        &#x2190; tiene que tener el script "build"
+  <span class="file">vite.config.js</span>       &#x2190; o webpack, o next.config.js
+  <span class="env">.env</span>                  &#x2190; env vars locales (NO commitear)
+  <span class="env">.env.example</span>         &#x2190; template para el equipo
+  <span class="folder">src/</span>
+    <span class="folder">components/</span>
+    <span class="folder">pages/</span>
+    <span class="file">main.jsx</span>
+    <span class="file">App.jsx</span>
+  <span class="folder">public/</span>
+    <span class="file">favicon.ico</span>
+      </div>
+
+      <p>Verifica que tu <code>package.json</code> tenga el script de build:</p>
+      <pre><code>{
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  }
+}</code></pre>
+
+      <div class="warning">
+        <strong>Importante:</strong> El directorio de build por defecto es <code>dist</code> (Vite) o <code>build</code> (CRA). Vercel lo detecta solo, pero si usas otro output dir, configuralo en el paso 6.
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="step" data-step="03" id="variables">
+      <h2><span class="icon">&#x1F527;</span> Variables de entorno</h2>
+      <p>Las env vars son la parte mas critica. Hay que manejarlas en <strong>dos niveles</strong>:</p>
+
+      <h3 style="margin-top:1rem; font-size:1rem;">a) Localmente (en tu maquina)</h3>
+      <p>Crea un archivo <code>.env</code> en la raiz del proyecto:</p>
+      <pre><code># .env (NO commitear a git)
+
+# API
+VITE_API_URL=https://api.miapp.com/v1
+VITE_API_KEY=sk_live_abc123def456
+
+# Auth
+VITE_AUTH0_DOMAIN=miauth0.auth0.com
+VITE_AUTH0_CLIENT_ID=abc123xyz
+VITE_AUTH0_REDIRECT_URI=http://localhost:5173/callback
+
+# Features
+VITE_ENABLE_ANALYTICS=true
+VITE_ENVIRONMENT=development</code></pre>
+
+      <div class="warning">
+        <strong>Nunca commitees archivos <code>.env</code> con secrets reales.</strong> Agrega <code>.env</code> a tu <code>.gitignore</code>. Solo commitea <code>.env.example</code> o <code>.env.local</code> como referencia.
+      </div>
+
+      <pre><code># .gitignore
+.env
+.env.local
+.env.*.local</code></pre>
+
+      <p>Crea el template para tu equipo:</p>
+      <pre><code># .env.example (este SI se commitea)
+
+VITE_API_URL=
+VITE_API_KEY=
+VITE_AUTH0_DOMAIN=
+VITE_AUTH0_CLIENT_ID=
+VITE_AUTH0_REDIRECT_URI=
+VITE_ENABLE_ANALYTICS=false
+VITE_ENVIRONMENT=development</code></pre>
+
+      <h3 style="margin-top:1.5rem; font-size:1rem;">b) Prefijo correcto segun el bundler</h3>
+      <table class="env-table">
+        <thead>
+          <tr><th>Bundler / Framework</th><th>Prefijo</th><th>Ejemplo</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Vite</td><td><code>VITE_</code></td><td><code>VITE_API_URL</code></td></tr>
+          <tr><td>Next.js</td><td><code>NEXT_PUBLIC_</code></td><td><code>NEXT_PUBLIC_API_URL</code></td></tr>
+          <tr><td>Create React App</td><td><code>REACT_APP_</code></td><td><code>REACT_APP_API_URL</code></td></tr>
+          <tr><td>Webpack manual</td><td><code>NEXT_PUBLIC_</code></td><td><code>NEXT_PUBLIC_API_URL</code></td></tr>
+        </tbody>
+      </table>
+
+      <div class="warning">
+        <strong>Clave:</strong> Solo las env vars con el prefijo correcto se exponen al cliente. Las que no lo tienen quedan en el servidor y no estan disponibles en <code>import.meta.env</code>.
+      </div>
+
+      <h3 style="margin-top:1.5rem; font-size:1rem;">c) Variables solo para Build-time</h3>
+      <p>Son variables que se reemplazan <strong>during el build</strong> y no se pueden cambiar sin redeploy:</p>
+      <pre><code># Se usan en build, NO disponibles en runtime
+VITE_API_URL=https://api.miapp.com/v1   # fija para el build</code></pre>
+
+      <p>Si necesitas variables en <strong>runtime</strong> (cambiables sin redeploy), usa el SDK de Vercel:</p>
+      <pre><code># Instalar el SDK de Vercel Edge Config
+npm i @vercel/edge-config
+
+# O usar fetch para Vercel env API (solo en serverless functions)</code></pre>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="step" data-step="04" id="config-vercel">
+      <h2><span class="icon">&#x2699;&#xFE0F;</span> Configuracion de Vercel</h2>
+      <p>Tenes dos formas de configurar el deploy:</p>
+
+      <h3 style="margin-top:1rem; font-size:1rem;">Opcion A: Desde la web (recomendado para el primer deploy)</h3>
+      <ol style="padding-left: 1.5rem;">
+        <li>Anda a <a href="https://vercel.com/new" style="color:var(--accent)">vercel.com/new</a></li>
+        <li>Hace click en <strong>"Import Git Repository"</strong></li>
+        <li>Selecciona tu proveedor (GitHub/GitLab/Bitbucket)</li>
+        <li>Autoriza el acceso y selecciona el repositorio</li>
+        <li>Vercel detecta automaticamente el framework y configura los settings</li>
+        <li>Antes de hacer deploy, expandi <strong>"Environment Variables"</strong> y carga tus variables</li>
+        <li>Hace click en <strong>"Deploy"</strong></li>
+      </ol>
+
+      <h3 style="margin-top:1.5rem; font-size:1rem;">Opcion B: Desde la CLI</h3>
+      <pre><code># Desde la raiz de tu proyecto
+vercel
+
+# Te va a guiar por:
+# 1. Login (abre browser)
+# 2. Seleccionar o crear proyecto
+# 3. Directorio del codigo (./ por defecto)
+# 4. Confirmar build command y output dir
+# 5. Deploy!</code></pre>
+    </div>
+
+    <!-- STEP 5 -->
+    <div class="step" data-step="05" id="conectar-repo">
+      <h2><span class="icon">&#x1F517;</span> Conectar el repositorio</h2>
+      <p>Al conectar el repo, Vercel crea un <strong>proyecto vinculado</strong>. Cada push a <code>main</code> (o la branch que configures) automaticamente despliega a produccion.</p>
+
+      <p>Flujo de un push:</p>
+      <pre><code>git push origin main
+  &#x2193;
+Vercel detecta el push
+  &#x2193;
+Instala dependencias (npm install / pnpm install)
+  &#x2193;
+Ejecuta el build (npm run build)
+  &#x2193;
+Sube los archivos a la CDN global
+  &#x2193;
+Asigna una URL: mi-frontend-abc123.vercel.app
+  &#x2193;
+Si esta vinculado a dominio custom &#x2192; actualiza produccion</code></pre>
+
+      <div class="info">
+        <strong>Git integration:</strong> Vercel crea un bot en GitHub que comenta en cada PR con la URL del deploy preview.
+      </div>
+    </div>
+
+    <!-- STEP 6 -->
+    <div class="step" data-step="06" id="build-settings">
+      <h2><span class="icon">&#x1F6E0;&#xFE0F;</span> Configurar Build & Output</h2>
+      <p>Si Vercel no detecta bien tu framework, o tenes una configuracion custom, editala en el dashboard:</p>
+
+      <p><strong>Settings &#x2192; Build & Development</strong></p>
+      <table class="env-table">
+        <thead>
+          <tr><th>Campo</th><th>Ejemplo (Vite)</th><th>Ejemplo (Next.js)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Framework</td><td>Vite</td><td>Next.js</td></tr>
+          <tr><td>Build Command</td><td><code>npm run build</code></td><td><code>next build</code></td></tr>
+          <tr><td>Output Directory</td><td><code>dist</code></td><td><code>.next</code> (auto)</td></tr>
+          <tr><td>Install Command</td><td><code>npm install</code></td><td><code>npm install</code></td></tr>
+          <tr><td>Root Directory</td><td><code>./</code></td><td><code>./</code></td></tr>
+          <tr><td>Node.js Version</td><td><code>20.x</code></td><td><code>20.x</code></td></tr>
+        </tbody>
+      </table>
+
+      <h3 style="margin-top:1.5rem; font-size:1rem;">Monorepo: sub-directorio del frontend</h3>
+      <p>Si tu repo tiene backend + frontend:</p>
+      <pre><code># En Vercel Dashboard: Settings &#x2192; General &#x2192; Root Directory
+# Pone la carpeta del frontend:
+Root Directory: packages/frontend
+
+# O en vercel.json:
+{
+  "buildCommand": "cd packages/frontend && npm run build",
+  "outputDirectory": "packages/frontend/dist"
+}</code></pre>
+
+      <h3 style="margin-top:1.5rem; font-size:1rem;">Archivo vercel.json (opcional)</h3>
+      <p>Para configuraciones avanzadas, crea <code>vercel.json</code> en la raiz:</p>
+      <pre><code>{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "framework": "vite",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    }
+  ],
+  "redirects": [
+    { "source": "/old-page", "destination": "/new-page", "permanent": true }
+  ]
+}</code></pre>
+
+      <div class="success">
+        <strong>SPA routing:</strong> Si usas React Router o similar, la regla de <code>rewrites</code> es <strong>obligatoria</strong>. Sin ella, recargar en una ruta que no sea <code>/</code> devuelve 404.
+      </div>
+    </div>
+
+    <!-- STEP 7 -->
+    <div class="step" data-step="07" id="env-vercel">
+      <h2><span class="icon">&#x1F4CB;</span> Cargar env vars en Vercel</h2>
+      <p>Vercel tiene 3 ambitos para env vars. Esto es fundamental para no romper nada:</p>
+
+      <table class="env-table">
+        <thead>
+          <tr><th>Ambito</th><th>Cuando se usan</th><th>Para que</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Production</strong></td>
+            <td>Deploy a <code>main</code></td>
+            <td>URLs de API reales, secrets de prod</td>
+          </tr>
+          <tr>
+            <td><strong>Preview</strong></td>
+            <td>PRs y branches no-main</td>
+            <td>API staging, datos de test</td>
+          </tr>
+          <tr>
+            <td><strong>Development</strong></td>
+            <td><code>vercel dev</code> local</td>
+            <td>Entorno local con vars reales sin exponerlas</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 style="margin-top:1rem; font-size:1rem;">Desde el dashboard</h3>
+      <ol style="padding-left: 1.5rem;">
+        <li>Proyecto &#x2192; Settings &#x2192; Environment Variables</li>
+        <li>Escribi el nombre (<code>VITE_API_URL</code>)</li>
+        <li>Escribi el valor</li>
+        <li>Selecciona el ambito: Production / Preview / Development</li>
+        <li>Hace click en <strong>"Add"</strong></li>
+        <li>Repite para cada variable</li>
+      </ol>
+
+      <h3 style="margin-top:1.5rem; font-size:1rem;">Desde la CLI</h3>
+      <pre><code># Agregar una variable de produccion
+vercel env add VITE_API_URL production
+
+# Agregar una variable de preview (para PRs)
+vercel env add VITE_API_URL preview
+
+# Agregar una variable de desarrollo (vercel dev)
+vercel env add VITE_API_URL development
+
+# Listar todas las variables
+vercel env ls
+
+# Eliminar una variable
+vercel env rm VITE_API_URL production</code></pre>
+
+      <h3 style="margin-top:1.5rem; font-size:1rem;">Ejemplo practico para un proyecto React</h3>
+      <pre><code># Production (produccion real)
+vercel env add VITE_API_URL production
+# &#x2192; https://api.miapp.com/v1
+
+vercel env add VITE_API_KEY production
+# &#x2192; sk_live_abc123def456
+
+# Preview (staging para PRs)
+vercel env add VITE_API_URL preview
+# &#x2192; https://api-staging.miapp.com/v1
+
+vercel env add VITE_API_KEY preview
+# &#x2192; sk_test_xyz789ghi012
+
+# Development (local con vercel dev)
+vercel env add VITE_API_URL development
+# &#x2192; http://localhost:3001/api
+
+vercel env add VITE_API_KEY development
+# &#x2192; sk_test_local_key</code></pre>
+
+      <div class="warning">
+        <strong>Cuidado:</strong> Cuando agregas o cambias una env var, <strong>NO se redeploya automaticamente</strong>. Tenes que hacer un redeploy manual o un push para que los nuevos valores tomen efecto.
+      </div>
+
+      <pre><code># Forzar redeploy para que tomen las nuevas env vars
+vercel --force
+
+# O desde el dashboard: Deployments &#x2192; "..." &#x2192; Redeploy</code></pre>
+
+      <h3 style="margin-top:1.5rem; font-size:1rem;">Env vars sensibles</h3>
+      <div class="info">
+        <strong>Vercel enmascara automaticamente</strong> las env vars en el dashboard (solo se muestran una vez al crearlas). Ademas, si alguien intenta loguearlas, el SDK las detecta y las oculta.
+      </div>
+      <p>Reglas de seguridad:</p>
+      <ul>
+        <li>Nunca uses <code>VITE_SECRET_KEY</code> &#x2014; si tiene el prefijo <code>VITE_</code>, Vite la expone al cliente. Usa <code>SECRET_KEY</code> (sin prefijo) para server-side.</li>
+        <li>Los secrets de OAuth, JWT signing, etc. <strong>nunca</strong> deberian estar en variables con prefijo <code>VITE_</code>.</li>
+        <li>Para secrets que solo el backend necesita, usa Serverless Functions o Edge Functions.</li>
+      </ul>
+    </div>
+
+    <!-- STEP 8 -->
+    <div class="step" data-step="08" id="deploy-preview">
+      <h2><span class="icon">&#x1F3A8;</span> Deploy previews y branches</h2>
+      <p>Cada branch o PR crea un deploy automatico con una URL unica:</p>
+
+      <pre><code># Cada PR genera una URL como:
+https://mi-frontend-git-feature-nueva-funcionalidad-miuser.vercel.app</code></pre>
+
+      <p>Esto permite:</p>
+      <ul>
+        <li><strong>Review de UI</strong> antes de mergear &#x2014; el equipo puede ver los cambios en vivo</li>
+        <li><strong>Testing automatizado</strong> &#x2014; podes correr E2E contra la URL de preview</li>
+        <li><strong>Separacion de env vars</strong> &#x2014; los previews usan las vars del ambito "Preview", no las de prod</li>
+      </ul>
+
+      <h3 style="margin-top:1rem; font-size:1rem;">Configurar branch deployments</h3>
+      <p>En Settings &#x2192; Git:</p>
+      <table class="env-table">
+        <thead>
+          <tr><th>Branch</th><th>Comportamiento</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>main</code></td><td>Deploy a produccion automatico</td></tr>
+          <tr><td><code>develop</code></td><td>Deploy preview (se puede configurar como Production tambien)</td></tr>
+          <tr><td>Otras branches</td><td>Deploy preview automatico</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- STEP 9 -->
+    <div class="step" data-step="09" id="dominio">
+      <h2><span class="icon">&#x1F310;</span> Dominio personalizado</h2>
+      <p>Para usar tu propio dominio en vez de <code>mi-app.vercel.app</code>:</p>
+
+      <ol style="padding-left: 1.5rem;">
+        <li>Settings &#x2192; Domains</li>
+        <li>Agrega tu dominio (ej: <code>miapp.com</code>)</li>
+        <li>Vercel te da los DNS records que necesitas configurar:</li>
+      </ol>
+
+      <pre><code># Opcion recomendada: DNS en tu proveedor (ej: Namecheap, Cloudflare)
+
+# Tipo A (para apex domain)
+@     A     76.76.21.21
+
+# Tipo CNAME (para subdomain)
+www   CNAME cname.vercel-dns.com</code></pre>
+
+      <div class="info">
+        <strong>SSL automatico:</strong> Vercel genera y renueva certificados SSL automaticamente. No tenes que configurar nada.
+      </div>
+
+      <div class="warning">
+        <strong>Propagation:</strong> Los cambios de DNS pueden tardar hasta 48hs, pero normalmente son 5-30 minutos.
+      </div>
+    </div>
+
+    <!-- STEP 10 -->
+    <div class="step" data-step="10" id="post-deploy">
+      <h2><span class="icon">&#x2705;</span> Post-deploy: verificacion</h2>
+      <p>Despues del primer deploy, verificaste todo:</p>
+
+      <ul class="checklist">
+        <li>La app carga correctamente en la URL de Vercel</li>
+        <li>Las llamadas a la API funcionan (no 404 ni CORS errors)</li>
+        <li>Las variables de entorno estan disponibles (<code>console.log(import.meta.env.VITE_API_URL)</code>)</li>
+        <li>El routing funciona (recarga en <code>/otra-ruta</code> no da 404)</li>
+        <li>Los assets statics cargan (favicon, imagenes, fonts)</li>
+        <li>El HTTPS funciona correctamente</li>
+        <li>Los headers de cache estan bien (Network tab en DevTools)</li>
+        <li>Un deploy preview funciona en una branch de test</li>
+      </ul>
+
+      <h3 style="margin-top:1rem; font-size:1rem;">Debugging rapido</h3>
+      <pre><code># Ver logs en tiempo real desde la CLI
+vercel logs mi-app.vercel.app
+
+# Ver logs del build
+vercel logs mi-app.vercel.app --build
+
+# Abrir el deploy en el browser
+vercel open</code></pre>
+
+      <div class="success">
+        <strong>Function logs:</strong> Si usas Serverless Functions, podes ver los logs en Runtime Logs del dashboard.
+      </div>
+    </div>
+
+    <!-- STEP 11 -->
+    <div class="step" data-step="11" id="ci-cd">
+      <h2><span class="icon">&#x1F680;</span> CI/CD avanzado</h2>
+      <p>Para equipos y proyectos en produccion, estas configuraciones son esenciales:</p>
+
+      <h3 style="margin-top:1rem; font-size:1rem;">Proteger produccion</h3>
+      <p>Settings &#x2192; Git &#x2192; <strong>Deployment Protection</strong>:</p>
+      <ul>
+        <li><strong>Vercel Authentication</strong> &#x2014; solo miembros autenticados ven los previews</li>
+        <li><strong>Branch Protections</strong> &#x2014; requiere approval antes de deployar a produccion</li>
+        <li><strong>Required reviewers</strong> &#x2014; para dominios criticos</li>
+      </ul>
+
+      <h3 style="margin-top:1.5rem; font-size:1rem;">Webhooks y notificaciones</h3>
+      <pre><code># Integrar con Slack/Discord para notificaciones de deploy
+# Settings &#x2192; Integrations &#x2192; Add Integration</code></pre>
+
+      <h3 style="margin-top:1.5rem; font-size:1rem;">Analytics</h3>
+      <pre><code># Vercel Analytics (Web Vitals)
+# 1. Instalar: npm i @vercel/analytics
+# 2. En tu App.jsx:
+
+import { Analytics } from '@vercel/analytics/react';
+
+function App() {
+  return (
+    &lt;&gt;
+      {/* tu app */}
+      &lt;Analytics /&gt;
+    &lt;/&gt;
+  );
+}</code></pre>
+
+      <pre><code># Speed Insights
+npm i @vercel/speed-insights
+
+import { SpeedInsights } from '@vercel/speed-insights/react';
+
+function App() {
+  return (
+    &lt;&gt;
+      {/* tu app */}
+      &lt;SpeedInsights /&gt;
+    &lt;/&gt;
+  );
+}</code></pre>
+
+      <h3 style="margin-top:1.5rem; font-size:1rem;">Redeploy programatico</h3>
+      <pre><code># Usando la API de Vercel (para CI custom)
+curl -X POST "https://api.vercel.com/v13/deployments" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "mi-frontend",
+    "gitSource": {
+      "type": "github",
+      "ref": "main",
+      "repoId": "12345"
+    }
+  }'</code></pre>
+    </div>
+
+    <!-- STEP 12 -->
+    <div class="step" data-step="12" id="troubleshooting">
+      <h2><span class="icon">&#x1F525;</span> Troubleshooting</h2>
+
+      <h3 style="margin-top:1rem; font-size:1rem;">Error: "Build failed"</h3>
+      <pre><code># 1. Corri el build localmente para ver el error real
+npm run build
+
+# 2. Revisa los Build Logs en el dashboard:
+#    Deployments &#x2192; [tu deploy] &#x2192; Build Logs</code></pre>
+
+      <h3 style="margin-top:1.5rem; font-size:1rem;">Error: "404 en recarga de pagina"</h3>
+      <p>Falta la regla de rewrite. Agrega a <code>vercel.json</code>:</p>
+      <pre><code>{
+  "rewrites": [
+    { "source": "/((?!assets/).*)", "destination": "/index.html" }
+  ]
+}</code></pre>
+
+      <h3 style="margin-top:1.5rem; font-size:1rem;">Error: "Variables de entorno undefined"</h3>
+      <pre><code># 1. Verifica el prefijo (VITE_, NEXT_PUBLIC_, REACT_APP_)
+# 2. Verifica el ambito (Production vs Preview vs Development)
+# 3. Hace redeploy despues de agregar las env vars
+vercel --force
+
+# 4. Verifica que esten en el scope correcto:
+vercel env ls</code></pre>
+
+      <h3 style="margin-top:1.5rem; font-size:1rem;">Error: "CORS en produccion"</h3>
+      <pre><code># El backend tiene que aceptar el dominio de Vercel
+# Ejemplo en Express:
+const cors = require('cors');
+
+app.use(cors({
+  origin: [
+    'https://miapp.com',
+    'https://www.miapp.com',
+    'https://mi-frontend-abc123.vercel.app'  // para previews
+  ]
+}));</code></pre>
+
+      <h3 style="margin-top:1.5rem; font-size:1rem;">Build lento</h3>
+      <pre><code># 1. Cache de dependencias: Vercel ya lo hace automaticamente
+# 2. Si usas monorepo, configura solo el package del frontend:
+#    Build &#x2192; Install Command: cd packages/frontend && npm install
+
+# 3. Usa pnpm en vez de npm (mas rapido):
+#    Install Command: pnpm install --frozen-lockfile
+#    Build Command: pnpm build</code></pre>
+
+      <h3 style="margin-top:1.5rem; font-size:1rem;">Como hacer rollback</h3>
+      <pre><code># Desde el dashboard:
+# Deployments &#x2192; seleccionar un deploy anterior &#x2192; "..." &#x2192; Promote to Production
+
+# Desde la CLI:
+vercel rollback</code></pre>
+    </div>
+
+    <!-- CHECKLIST FINAL -->
+    <div class="step" data-step="&#x2713;" id="checklist">
+      <h2><span class="icon">&#x1F4CB;</span> Checklist final</h2>
+      <ul class="checklist">
+        <li>Repo conectado a Vercel</li>
+        <li>Framework detectado correctamente</li>
+        <li>Build command y output dir configurados</li>
+        <li>Env vars cargadas en Production</li>
+        <li>Env vars cargadas en Preview</li>
+        <li><code>.env</code> esta en <code>.gitignore</code></li>
+        <li><code>.env.example</code> commiteado con los nombres de las vars</li>
+        <li>SPA routing configurado (<code>rewrites</code> en <code>vercel.json</code>)</li>
+        <li>Primer deploy funciona correctamente</li>
+        <li>Deploy preview funciona en una branch</li>
+        <li>Dominio personalizado configurado (si aplica)</li>
+        <li>SSL activo y funcionando</li>
+        <li>Rollback probado</li>
+      </ul>
+    </div>
+
+    <footer>
+      Generado para el proyecto react-utn &#xB7; Julio 2026
+    </footer>
+
+  </div>
+
+  <script>
+    (function () {
+      var saved = localStorage.getItem('theme');
+      if (saved === 'light') {
+        document.documentElement.classList.add('light');
+      } else if (!saved) {
+        if (window.matchMedia('(prefers-color-scheme: light)').matches) {
+          document.documentElement.classList.add('light');
+        }
+      }
+    })();
+
+    function toggleTheme() {
+      document.documentElement.classList.toggle('light');
+      var isLight = document.documentElement.classList.contains('light');
+      localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    }
+  </script>
+
+</body>
+</html>

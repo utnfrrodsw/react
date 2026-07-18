@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deploy de Frontend en Cloudflare Pages — Guia Paso a Paso</title>
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --surface2: #1e1e1e;
+      --border: #2a2a2a;
+      --text: #e5e5e5;
+      --text-dim: #888;
+      --accent: #f6821f;
+      --accent2: #e34c00;
+      --green: #0cce6b;
+      --orange: #f5a623;
+      --red: #ee0000;
+      --code-bg: #111;
+      --radius: 12px;
+      --sidebar-w: 240px;
+    }
+
+    html.light {
+      --bg: #ffffff;
+      --surface: #f5f5f5;
+      --surface2: #ebebeb;
+      --border: #ddd;
+      --text: #1a1a1a;
+      --text-dim: #666;
+      --code-bg: #f0f0f0;
+    }
+
+    html.light pre { color: #1e1e1e; }
+    html.light code:not(pre code) { color: #c44d00; }
+    html.light .file-tree { color: #555; }
+    html.light .file-tree .folder { color: #c44d00; }
+    html.light .file-tree .file { color: #1e1e1e; }
+    html.light .step::before { color: #ddd; }
+    html.light .sidebar a { color: #666; }
+    html.light .sidebar a:hover { color: var(--accent); }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    /* ── Sidebar TOC ── */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: var(--sidebar-w);
+      height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 2rem 1.25rem;
+      overflow-y: auto;
+      z-index: 100;
+    }
+
+    .sidebar h3 {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 1rem;
+    }
+
+    .sidebar ol {
+      padding-left: 1.25rem;
+      list-style: none;
+      counter-reset: toc-counter;
+    }
+
+    .sidebar ol li {
+      counter-increment: toc-counter;
+      margin-bottom: 0.35rem;
+      position: relative;
+    }
+
+    .sidebar ol li::before {
+      content: counter(toc-counter, decimal-leading-zero);
+      position: absolute;
+      left: -1.4rem;
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .sidebar a {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 0.82rem;
+      transition: color 0.15s;
+      display: block;
+      padding: 0.2rem 0;
+    }
+
+    .sidebar a:hover {
+      color: var(--accent);
+    }
+
+    .sidebar .sidebar-title {
+      font-size: 1rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── Main content ── */
+    .main {
+      margin-left: var(--sidebar-w);
+      padding: 2.5rem 3rem;
+      max-width: 820px;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      color: var(--text-dim);
+      font-size: 1rem;
+      margin-bottom: 3rem;
+    }
+
+    .step {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .step::before {
+      content: attr(data-step);
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      font-size: 3rem;
+      font-weight: 800;
+      color: var(--border);
+      line-height: 1;
+    }
+
+    .step h2 {
+      font-size: 1.3rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .step h2 .icon {
+      font-size: 1.1rem;
+    }
+
+    .step p, .step li {
+      color: var(--text);
+      font-size: 0.95rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .step ul {
+      padding-left: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      overflow-x: auto;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      margin: 0.75rem 0;
+      font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace;
+      color: #c9d1d9;
+    }
+
+    code {
+      font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace;
+      background: var(--surface2);
+      padding: 0.15em 0.4em;
+      border-radius: 4px;
+      font-size: 0.88em;
+      color: #f6821f;
+    }
+
+    pre code {
+      background: none;
+      padding: 0;
+      color: inherit;
+    }
+
+    .warning {
+      background: rgba(245,166,35,0.08);
+      border-left: 3px solid var(--orange);
+      border-radius: 0 8px 8px 0;
+      padding: 1rem 1.25rem;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+    }
+
+    .warning strong { color: var(--orange); }
+
+    .info {
+      background: rgba(246,130,31,0.08);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 8px 8px 0;
+      padding: 1rem 1.25rem;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+    }
+
+    .info strong { color: var(--accent); }
+
+    .success {
+      background: rgba(0,206,107,0.08);
+      border-left: 3px solid var(--green);
+      border-radius: 0 8px 8px 0;
+      padding: 1rem 1.25rem;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+    }
+
+    .success strong { color: var(--green); }
+
+    .env-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.88rem;
+    }
+
+    .env-table th,
+    .env-table td {
+      text-align: left;
+      padding: 0.6rem 0.8rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .env-table th {
+      color: var(--text-dim);
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .env-table td code {
+      font-size: 0.82rem;
+    }
+
+    .checklist {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .checklist li {
+      padding: 0.4rem 0;
+      padding-left: 1.8rem;
+      position: relative;
+    }
+
+    .checklist li::before {
+      content: '\2610';
+      position: absolute;
+      left: 0;
+      font-size: 1.1rem;
+    }
+
+    .file-tree {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.85rem;
+      line-height: 1.8;
+      color: #8b949e;
+      margin: 0.75rem 0;
+    }
+
+    .file-tree .folder { color: #f6821f; }
+    .file-tree .file   { color: #c9d1d9; }
+    .file-tree .env    { color: var(--orange); }
+
+    footer {
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.8rem;
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── Theme toggle button ── */
+    .theme-toggle {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.25rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      width: 36px;
+      height: 36px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .theme-toggle:hover {
+      background: var(--border);
+    }
+
+    html:not(.light) .theme-toggle .icon-sun { display: inline; }
+    html:not(.light) .theme-toggle .icon-moon { display: none; }
+    html.light .theme-toggle .icon-sun { display: none; }
+    html.light .theme-toggle .icon-moon { display: inline; }
+
+    /* ── Responsive: sidebar collapses on small screens ── */
+    @media (max-width: 768px) {
+      .sidebar {
+        position: static;
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding: 1.5rem;
+      }
+
+      .theme-toggle {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+      }
+
+      .sidebar ol {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem 1rem;
+        padding-left: 0;
+      }
+
+      .sidebar ol li::before {
+        display: none;
+      }
+
+      .sidebar a {
+        font-size: 0.78rem;
+      }
+
+      .main {
+        margin-left: 0;
+        padding: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar TOC -->
+  <nav class="sidebar">
+    <div class="sidebar-title">Cloudflare Deploy Guide</div>
+    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Cambiar tema">
+      <span class="icon-sun">&#x2600;&#xFE0F;</span>
+      <span class="icon-moon">&#x1F319;</span>
+    </button>
+    <h3>Indice</h3>
+    <ol>
+      <li><a href="#prerequisitos">Prerequisitos</a></li>
+      <li><a href="#estructura">Estructura del proyecto</a></li>
+      <li><a href="#variables">Variables de entorno</a></li>
+      <li><a href="#wrangler">Wrangler CLI</a></li>
+      <li><a href="#conectar-repo">Conectar repositorio</a></li>
+      <li><a href="#build-settings">Build & Output</a></li>
+      <li><a href="#env-cloudflare">Env vars en Cloudflare</a></li>
+      <li><a href="#deploy-preview">Deploy previews</a></li>
+      <li><a href="#dominio">Dominio personalizado</a></li>
+      <li><a href="#functions">Cloudflare Functions</a></li>
+      <li><a href="#post-deploy">Post-deploy</a></li>
+      <li><a href="#ci-cd">CI/CD avanzado</a></li>
+      <li><a href="#troubleshooting">Troubleshooting</a></li>
+    </ol>
+  </nav>
+
+  <!-- Main content -->
+  <div class="main">
+
+    <h1>Deploy de Frontend en Cloudflare Pages</h1>
+    <p class="subtitle">Guia completa paso a paso — desde el repo local hasta produccion con la CDN mas rapida del mundo.</p>
+
+    <!-- STEP 1 -->
+    <div class="step" data-step="01" id="prerequisitos">
+      <h2><span class="icon">&#x2705;</span> Prerequisitos</h2>
+      <p>Antes de empezar, asegurate de tener:</p>
+      <ul>
+        <li>Una cuenta en <a href="https://dash.cloudflare.com" style="color:var(--accent)">Cloudflare</a> (el plan <strong>Free</strong> incluye Pages con builds ilimitados)</li>
+        <li>Node.js <strong>v18+</strong> instalado (<code>node -v</code>)</li>
+        <li>Un repositorio en <strong>GitHub</strong>, <strong>GitLab</strong> o <strong>Bitbucket</strong></li>
+        <li>El CLI de Wrangler instalado:</li>
+      </ul>
+      <pre><code>npm i -g wrangler</code></pre>
+      <div class="info">
+        <strong>Tip:</strong> Wrangler es el CLI oficial de Cloudflare. Reemplaza al viejo <code>wrangler</code> y sirve tanto para Pages como para Workers.
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step" data-step="02" id="estructura">
+      <h2><span class="icon">&#x1F4C1;</span> Estructura del proyecto</h2>
+      <p>Cloudflare Pages funciona con cualquier framework estatico. Asegurate de que tu proyecto tenga esta estructura minima:</p>
+      <div class="file-tree">
+<span class="folder">mi-frontend/</span>
+  <span class="file">package.json</span>        &#x2190; tiene que tener el script "build"
+  <span class="file">vite.config.js</span>       &#x2190; o webpack, o next.config.js
+  <span class="env">.env</span>                  &#x2190; env vars locales (NO commitear)
+  <span class="env">.env.example</span>         &#x2190; template para el equipo
+  <span class="folder">src/</span>
+    <span class="folder">components/</span>
+    <span class="folder">pages/</span>
+    <span class="file">main.jsx</span>
+    <span class="file">App.jsx</span>
+  <span class="folder">public/</span>
+    <span class="file">favicon.ico</span>
+      </div>
+
+      <p>Verifica que tu <code>package.json</code> tenga el script de build:</p>
+      <pre><code>{
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  }
+}</code></pre>
+
+      <div class="warning">
+        <strong>Importante:</strong> El directorio de build por defecto es <code>dist</code> (Vite) o <code>build</code> (CRA). Cloudflare Pages lo detecta, pero si usas otro output dir, configuralo en el paso 6.
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="step" data-step="03" id="variables">
+      <h2><span class="icon">&#x1F527;</span> Variables de entorno</h2>
+      <p>Las env vars son la parte mas critica. Cloudflare Pages las maneja en <strong>dos niveles</strong>:</p>
+
+      <h3 style="margin-top:1rem; font-size:1rem;">a) Localmente (en tu maquina)</h3>
+      <p>Crea un archivo <code>.env</code> en la raiz del proyecto:</p>
+      <pre><code># .env (NO commitear a git)
+
+# API
+VITE_API_URL=https://api.miapp.com/v1
+VITE_API_KEY=sk_live_abc123def456
+
+# Auth
+VITE_AUTH0_DOMAIN=miauth0.auth0.com
+VITE_AUTH0_CLIENT_ID=abc123xyz
+VITE_AUTH0_REDIRECT_URI=http://localhost:5173/callback
+
+# Features
+VITE_ENABLE_ANALYTICS=true
+VITE_ENVIRONMENT=development</code></pre>
+
+      <div class="warning">
+        <strong>Nunca commitees archivos <code>.env</code> con secrets reales.</strong> Agrega <code>.env</code> a tu <code>.gitignore</code>. Solo commitea <code>.env.example</code> o <code>.env.local</code> como referencia.
+      </div>
+
+      <pre><code># .gitignore
+.env
+.env.local
+.env.*.local</code></pre>
+
+      <p>Crea el template para tu equipo:</p>
+      <pre><code># .env.example (este SI se commitea)
+
+VITE_API_URL=
+VITE_API_KEY=
+VITE_AUTH0_DOMAIN=
+VITE_AUTH0_CLIENT_ID=
+VITE_AUTH0_REDIRECT_URI=
+VITE_ENABLE_ANALYTICS=false
+VITE_ENVIRONMENT=development</code></pre>
+
+      <h3 style="margin-top:1.5rem; font-size:1rem;">b) Prefijo correcto segun el bundler</h3>
+      <table class="env-table">
+        <thead>
+          <tr><th>Bundler / Framework</th><th>Prefijo</th><th>Ejemplo</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Vite</td><td><code>VITE_</code></td><td><code>VITE_API_URL</code></td></tr>
+          <tr><td>Next.js (estatico)</td><td><code>NEXT_PUBLIC_</code></td><td><code>NEXT_PUBLIC_API_URL</code></td></tr>
+          <tr><td>Create React App</td><td><code>REACT_APP_</code></td><td><code>REACT_APP_API_URL</code></td></tr>
+        </tbody>
+      </table>
+
+      <div class="warning">
+        <strong>Clave:</strong> Solo las env vars con el prefijo correcto se exponen al cliente. Las que no lo tienen quedan embebidas en el build y no estan disponibles en <code>import.meta.env</code>.
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="step" data-step="04" id="wrangler">
+      <h2><span class="icon">&#x1F4E6;</span> Wrangler CLI — Autenticacion y proyecto</h2>
+      <p>Antes de deployar, autenticate con Cloudflare y crea el proyecto:</p>
+
+      <h3 style="margin-top:1rem; font-size:1rem;">Login con Cloudflare</h3>
+      <pre><code># Abrira el browser para autenticarte
+wrangler login</code></pre>
+
+      <h3 style="margin-top:1.5rem; font-size:1rem;">Crear proyecto de Pages</h3>
+      <pre><code># Crear un nuevo proyecto (solo la primera vez)
+wrangler pages project create mi-frontend
+
+# Te va a preguntar:
+# - Nombre del proyecto
+# - Branch principal (main)
+# - Build command (detecta automaticamente)
+# - Output directory (detecta automaticamente)</code></pre>
+
+      <h3 style="margin-top:1.5rem; font-size:1rem;">Deploy directo desde CLI (alternativa)</h3>
+      <pre><code># Build y deploy en un solo comando
+wrangler pages deploy dist --project-name=mi-frontend
+
+# O con deploy preview
+wrangler pages deploy dist --project-name=mi-frontend --branch=feature-nueva</code></pre>
+
+      <div class="info">
+        <strong>Ventaja:</strong> <code>wrangler pages deploy</code> sube el build estatico directamente a la CDN sin necesidad de GitHub. Ideal para CI/CD custom o deploy rapido.
+      </div>
+    </div>
+
+    <!-- STEP 5 -->
+    <div class="step" data-step="05" id="conectar-repo">
+      <h2><span class="icon">&#x1F517;</span> Conectar el repositorio</h2>
+      <p>Al conectar el repo, Cloudflare Pages crea un <strong>proyecto vinculado</strong>. Cada push a <code>main</code> (o la branch que configures) automaticamente despliega a produccion.</p>
+
+      <h3 style="margin-top:1rem; font-size:1rem;">Desde la web (recomendado para el primer deploy)</h3>
+      <ol style="padding-left: 1.5rem;">
+        <li>Anda a <a href="https://dash.cloudflare.com" style="color:var(--accent)">dash.cloudflare.com</a></li>
+        <li>Selecciona tu cuenta</li>
+        <li>Anda a <strong>Workers & Pages</strong> &#x2192; <strong>Create</strong> &#x2192; <strong>Pages</strong> &#x2192; <strong>Connect to Git</strong></li>
+        <li>Selecciona tu proveedor (GitHub/GitLab/Bitbucket)</li>
+        <li>Autoriza el acceso y selecciona el repositorio</li>
+        <li>Configura el <strong>Project name</strong></li>
+        <li>Configura <strong>Production branch</strong> (ej: <code>main</code>)</li>
+        <li>En <strong>Build settings</strong>, completa los campos (ver paso 6)</li>
+        <li>Hace click en <strong>"Save and Deploy"</strong></li>
+      </ol>
+
+      <p>Flujo de un push:</p>
+      <pre><code>git push origin main
+  &#x2193;
+Cloudflare detecta el push
+  &#x2193;
+Instala dependencias (npm install)
+  &#x2193;
+Ejecuta el build (npm run build)
+  &#x2193;
+Sube archivos a la CDN global de Cloudflare
+  &#x2193;
+Asigna una URL: mi-frontend.pages.dev
+  &#x2193;
+Si tiene dominio custom &#x2192; actualiza produccion</code></pre>
+
+      <div class="info">
+        <strong>Git integration:</strong> Cloudflare Pages crea checks de status en GitHub que muestran el estado del deploy en cada PR.
+      </div>
+    </div>
+
+    <!-- STEP 6 -->
+    <div class="step" data-step="06" id="build-settings">
+      <h2><span class="icon">&#x1F6E0;&#xFE0F;</span> Configurar Build & Output</h2>
+      <p>Si Cloudflare no detecta bien tu framework, o tenes una configuracion custom, editala en el dashboard:</p>
+
+      <p><strong>Workers & Pages &#x2192; mi-frontend &#x2192; Settings &#x2192; Builds & deploy</strong></p>
+      <table class="env-table">
+        <thead>
+          <tr><th>Campo</th><th>Ejemplo (Vite)</th><th>Ejemplo (Next.js estatico)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Framework preset</td><td>Vite</td><td>Next.js</td></tr>
+          <tr><td>Build command</td><td><code>npm run build</code></td><td><code>npx next build &amp;&amp; npx next export</code></td></tr>
+          <tr><td>Build output directory</td><td><code>dist</code></td><td><code>out</code></td></tr>
+          <tr><td>Root directory</td><td><code>/</code></td><td><code>/</code></td></tr>
+        </tbody>
+      </table>
+
+      <h3 style="margin-top:1.5rem; font-size:1rem;">Monorepo: sub-directorio del frontend</h3>
+      <p>Si tu repo tiene backend + frontend:</p>
+      <pre><code># En Cloudflare Dashboard: Settings &#x2192; Builds & deploy
+# Pone la carpeta del frontend:
+Root directory: packages/frontend
+
+# Build command:
+cd ../.. &amp;&amp; npm install &amp;&amp; cd packages/frontend &amp;&amp; npm run build
+
+# Build output directory:
+dist</code></pre>
+
+      <h3 style="margin-top:1.5rem; font-size:1rem;">Archivo wrangler.toml (opcional)</h3>
+      <p>Para configuraciones avanzadas, puedes crear un <code>wrangler.toml</code> en la raiz del proyecto:</p>
+      <pre><code># wrangler.toml
+name = "mi-frontend"
+compatibility_date = "2024-01-01"
+
+# Configuracion de Pages
+[site]
+bucket = "./dist"
+
+# Headers personalizados
+[[headers]]
+  pattern = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+
+# Redirects
+[[redirects]]
+  from = "/old-page"
+  to = "/new-page"
+  status = 301
+
+# Reglas SPA (equivalente a vercel.json rewrites)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200</code></pre>
+
+      <div class="success">
+        <strong>SPA routing:</strong> Si usas React Router o similar, la regla de redirect <code>/* &#x2192; /index.html</code> es <strong>obligatoria</strong>. Sin ella, recargar en una ruta que no sea <code>/</code> devuelve 404.
+      </div>
+    </div>
+
+    <!-- STEP 7 -->
+    <div class="step" data-step="07" id="env-cloudflare">
+      <h2><span class="icon">&#x1F4CB;</span> Cargar env vars en Cloudflare Pages</h2>
+      <p>Cloudflare Pages tiene 3 ambitos para env vars. Esto es fundamental para no romper nada:</p>
+
+      <table class="env-table">
+        <thead>
+          <tr><th>Ambito</th><th>Cuando se usan</th><th>Para que</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Production</strong></td>
+            <td>Deploy a <code>main</code></td>
+            <td>URLs de API reales, secrets de prod</td>
+          </tr>
+          <tr>
+            <td><strong>Preview</strong></td>
+            <td>PRs y branches no-main</td>
+            <td>API staging, datos de test</td>
+          </tr>
+          <tr>
+            <td><strong>Deploy hook</strong></td>
+            <td>Webhook manual</td>
+            <td>Trigger de deploy via URL o API</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 style="margin-top:1rem; font-size:1rem;">Desde el dashboard</h3>
+      <ol style="padding-left: 1.5rem;">
+        <li>Workers & Pages &#x2192; mi-frontend &#x2192; Settings &#x2192; Environment variables</li>
+        <li>Selecciona el ambito: <strong>Production</strong> o <strong>Preview</strong></li>
+        <li>Escribi el nombre (<code>VITE_API_URL</code>)</li>
+        <li>Escribi el valor</li>
+        <li>Hace click en <strong>"Encrypt"</strong> si es un secret</li>
+        <li>Hace click en <strong>"Add"</strong></li>
+        <li>Repite para cada variable</li>
+      </ol>
+
+      <h3 style="margin-top:1.5rem; font-size:1rem;">Desde Wrangler CLI</h3>
+      <pre><code># Agregar una variable de produccion
+wrangler pages secret put VITE_API_URL --project-name=mi-frontend
+# &#x2192; Ingresar el valor en el prompt
+
+# Agregar una variable de produccion (no secret)
+wrangler pages secret put VITE_API_URL --project-name=mi-frontend --production
+
+# Agregar una variable de preview
+wrangler pages secret put VITE_API_URL --project-name=mi-frontend --preview
+
+# Listar secrets
+wrangler pages secret list --project-name=mi-frontend
+
+# Eliminar un secret
+wrangler pages secret delete VITE_API_URL --project-name=mi-frontend</code></pre>
+
+      <h3 style="margin-top:1.5rem; font-size:1rem;">Ejemplo practico para un proyecto React</h3>
+      <pre><code># Production (produccion real)
+wrangler pages secret put VITE_API_URL --project-name=mi-frontend
+# &#x2192; https://api.miapp.com/v1
+
+wrangler pages secret put VITE_API_KEY --project-name=mi-frontend
+# &#x2192; sk_live_abc123def456
+
+# Preview (staging para PRs)
+wrangler pages secret put VITE_API_URL --project-name=mi-frontend --preview
+# &#x2192; https://api-staging.miapp.com/v1
+
+wrangler pages secret put VITE_API_KEY --project-name=mi-frontend --preview
+# &#x2192; sk_test_xyz789ghi012</code></pre>
+
+      <div class="warning">
+        <strong>Cuidado:</strong> Cuando agregas o cambias una env var, se aplica en el proximo deploy. Si necesitas que aplique inmediatamente, hace un redeploy manual.
+      </div>
+
+      <pre><code># Forzar redeploy para que tomen las nuevas env vars
+wrangler pages deploy dist --project-name=mi-frontend
+
+# O desde el dashboard: Deployments &#x2192; "..." &#x2192; Retry deployment</code></pre>
+
+      <div class="info">
+        <strong>Secrets enmascarados:</strong> Cloudflare enmascara automaticamente los secrets en el dashboard. Una vez creados, no se pueden volver a leer. Anotalos en un gestor de secrets.
+      </div>
+    </div>
+
+    <!-- STEP 8 -->
+    <div class="step" data-step="08" id="deploy-preview">
+      <h2><span class="icon">&#x1F3A8;</span> Deploy previews y branches</h2>
+      <p>Cada branch o PR crea un deploy automatico con una URL unica:</p>
+
+      <pre><code># Cada PR genera una URL como:
+https://mi-frontend.branch-name.pages.dev</code></pre>
+
+      <p>Esto permite:</p>
+      <ul>
+        <li><strong>Review de UI</strong> antes de mergear &#x2014; el equipo puede ver los cambios en vivo</li>
+        <li><strong>Testing automatizado</strong> &#x2014; podes correr E2E contra la URL de preview</li>
+        <li><strong>Separacion de env vars</strong> &#x2014; los previews usan las vars del ambito "Preview", no las de prod</li>
+      </ul>
+
+      <h3 style="margin-top:1rem; font-size:1rem;">Configurar branch deployments</h3>
+      <p>En Settings &#x2192; Builds & deploy &#x2192; <strong>Branch deployments</strong>:</p>
+      <table class="env-table">
+        <thead>
+          <tr><th>Branch</th><th>Comportamiento</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>main</code></td><td>Deploy a produccion automatico</td></tr>
+          <tr><td><code>develop</code></td><td>Deploy preview</td></tr>
+          <tr><td>Otras branches</td><td>Deploy preview automatico</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- STEP 9 -->
+    <div class="step" data-step="09" id="dominio">
+      <h2><span class="icon">&#x1F310;</span> Dominio personalizado</h2>
+      <p>Para usar tu propio dominio en vez de <code>mi-frontend.pages.dev</code>:</p>
+
+      <h3 style="margin-top:1rem; font-size:1rem;">Opcion A: Tu dominio ya usa Cloudflare DNS</h3>
+      <ol style="padding-left: 1.5rem;">
+        <li>Workers & Pages &#x2192; mi-frontend &#x2192; Custom domains</li>
+        <li>Hace click en <strong>"Set up a custom domain"</strong></li>
+        <li>Escribe tu dominio (ej: <code>miapp.com</code>)</li>
+        <li>Cloudflare configura los DNS records automaticamente</li>
+        <li>SSL se genera y renueva automaticamente</li>
+      </ol>
+
+      <h3 style="margin-top:1.5rem; font-size:1rem;">Opcion B: Tu dominio usa otro DNS provider</h3>
+      <p>Si el DNS lo maneja otro proveedor, configura estos registros:</p>
+      <pre><code># Tipo A (para apex domain)
+@     A     192.0.2.1
+
+# Tipo CNAME (para subdomain)
+www   CNAME mi-frontend.pages.dev</code></pre>
+
+      <div class="warning">
+        <strong>Nota:</strong> Si tu dominio esta en otro proveedor, es mas facil migrar el DNS a Cloudflare primero. Asi aprovechas la CDN, el WAF, y el SSL automatico sin config extra.
+      </div>
+
+      <div class="info">
+        <strong>SSL automatico:</strong> Cloudflare genera y renueva certificados SSL/TLS automaticamente. En Pages, el certificado lo gestiona Cloudflare, no necesitas configurar nada.
+      </div>
+
+      <div class="warning">
+        <strong>Propagation:</strong> Los cambios de DNS pueden tardar hasta 48hs, pero normalmente son 5-30 minutos. Cloudflare suele ser mas rapido que otros proveedores.
+      </div>
+    </div>
+
+    <!-- STEP 10 -->
+    <div class="step" data-step="10" id="functions">
+      <h2><span class="icon">&#x26A1;</span> Cloudflare Functions (Opcional)</h2>
+      <p>Cloudflare Pages soporta <strong>Functions</strong> (antes conocido como Pages Functions). Podes usarlas para logica backend sin un servidor dedicado.</p>
+
+      <h3 style="margin-top:1rem; font-size:1rem;">Estructura</h3>
+      <div class="file-tree">
+<span class="folder">mi-frontend/</span>
+  <span class="folder">functions/</span>            &#x2190; Cloudflare detecta esta carpeta
+    <span class="folder">api/</span>
+      <span class="file">hello.js</span>          &#x2190; &#x2192; /api/hello
+      <span class="file">users/[id].js</span>     &#x2190; &#x2192; /api/users/:id
+    <span class="file">_middleware.js</span>     &#x2190; middleware global (auth, CORS, etc.)
+  <span class="folder">src/</span>
+  <span class="folder">dist/</span>                 &#x2190; output del build
+      </div>
+
+      <h3 style="margin-top:1.5rem; font-size:1rem;">Ejemplo de function</h3>
+      <pre><code>// functions/api/hello.js
+export async function onRequest(context) {
+  return new Response(JSON.stringify({ message: "Hello from Cloudflare!" }), {
+    headers: { "Content-Type": "application/json" },
+  });
+}</code></pre>
+
+      <h3 style="margin-top:1.5rem; font-size:1rem;">Ejemplo con parametros</h3>
+      <pre><code>// functions/api/users/[id].js
+export async function onRequest(context) {
+  const { id } = context.params;
+  // Acceder a secrets: context.env.API_KEY
+  // Acceder a KV: context.env.MY_KV.get(`user:${id}`)
+  return new Response(JSON.stringify({ userId: id }), {
+    headers: { "Content-Type": "application/json" },
+  });
+}</code></pre>
+
+      <h3 style="margin-top:1.5rem; font-size:1rem;">Middleware (CORS, Auth)</h3>
+      <pre><code>// functions/_middleware.js
+export async function onRequest(context) {
+  // CORS headers
+  const response = await context.next();
+  response.headers.set("Access-Control-Allow-Origin", "*");
+  response.headers.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  return response;
+}</code></pre>
+
+      <div class="success">
+        <strong>Ventaja:</strong> Las Functions se ejecutan en la edge (el punto mas cercano al usuario), lo que las hace extremadamente rapidas. No necesitas configurar un servidor separado.
+      </div>
+    </div>
+
+    <!-- STEP 11 -->
+    <div class="step" data-step="11" id="post-deploy">
+      <h2><span class="icon">&#x2705;</span> Post-deploy: verificacion</h2>
+      <p>Despues del primer deploy, verificaste todo:</p>
+
+      <ul class="checklist">
+        <li>La app carga correctamente en la URL de Cloudflare Pages</li>
+        <li>Las llamadas a la API funcionan (no 404 ni CORS errors)</li>
+        <li>Las variables de entorno estan disponibles (<code>console.log(import.meta.env.VITE_API_URL)</code>)</li>
+        <li>El routing funciona (recarga en <code>/otra-ruta</code> no da 404)</li>
+        <li>Los assets statics cargan (favicon, imagenes, fonts)</li>
+        <li>El HTTPS funciona correctamente</li>
+        <li>Los headers de cache estan bien (Network tab en DevTools)</li>
+        <li>Un deploy preview funciona en una branch de test</li>
+      </ul>
+
+      <h3 style="margin-top:1rem; font-size:1rem;">Debugging rapido</h3>
+      <pre><code># Ver logs de Functions en tiempo real
+wrangler pages deployment tail --project-name=mi-frontend
+
+# Abrir el dashboard del proyecto
+wrangler pages project list</code></pre>
+
+      <div class="success">
+        <strong>Real-time logs:</strong> Podes ver los logs de Functions en tiempo real desde el dashboard de Cloudflare en Workers & Pages &#x2192; mi-frontend &#x2192; Logs.
+      </div>
+    </div>
+
+    <!-- STEP 12 -->
+    <div class="step" data-step="12" id="ci-cd">
+      <h2><span class="icon">&#x1F680;</span> CI/CD avanzado</h2>
+      <p>Para equipos y proyectos en produccion, estas configuraciones son esenciales:</p>
+
+      <h3 style="margin-top:1rem; font-size:1rem;">Proteger produccion</h3>
+      <p>Workers & Pages &#x2192; mi-frontend &#x2192; Settings &#x2192; Builds & deploy:</p>
+      <ul>
+        <li><strong>Branch protection rules</strong> &#x2014; requiere approval antes de deployar a produccion</li>
+        <li><strong>Required reviewers</strong> &#x2014; para dominios criticos</li>
+        <li><strong>Build caches</strong> &#x2014; habilitar caches para builds mas rapidos</li>
+      </ul>
+
+      <h3 style="margin-top:1.5rem; font-size:1rem;">Deploy hooks</h3>
+      <pre><code># Crear un deploy hook en Dashboard:
+# Settings &#x2192; Builds & deploy &#x2192; Deploy hooks
+
+# Ejemplo: Deploy manual via curl
+curl -X POST https://api.cloudflare.com/client/v4/pages/webhooks/deploy/hooks/HOOK_ID \
+  -H "Authorization: Bearer YOUR_API_TOKEN"</code></pre>
+
+      <h3 style="margin-top:1.5rem; font-size:1rem;">Cache de builds</h3>
+      <pre><code># Cloudflare Pages cachea automaticamente las dependencias
+# Si el build es lento, verifica en:
+# Settings &#x2192; Builds & deploy &#x2192; Build caches
+
+# Para invalidar el cache, agrega esto al build command:
+npm ci --cache /tmp/.npm &amp;&amp; npm run build</code></pre>
+
+      <h3 style="margin-top:1.5rem; font-size:1rem;">Deploy con GitHub Actions (alternativa)</h3>
+      <pre><code># .github/workflows/deploy.yml
+name: Deploy to Cloudflare Pages
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=mi-frontend</code></pre>
+
+      <div class="info">
+        <strong>API Token:</strong> Crea un API token en Cloudflare Dashboard &#x2192; My Profile &#x2192; API Tokens &#x2192; Create Token. Usa el template "Edit Cloudflare Workers".
+      </div>
+
+      <h3 style="margin-top:1.5rem; font-size:1rem;">Analytics (Web Vitals)</h3>
+      <pre><code># Cloudflare Web Analytics (gratis)
+# 1. Dashboard &#x2192; Analytics &amp; Logs &#x2192; Web Analytics
+# 2. Copia el script tag
+# 3. Agrega al &lt;head&gt; de tu index.html:
+
+&lt;script defer src="https://static.cloudflareinsights.com/beacon.min.js"
+  data-cf-beacon='{"token": "TU_TOKEN"}'&gt;&lt;/script&gt;</code></pre>
+    </div>
+
+    <!-- STEP 13 -->
+    <div class="step" data-step="13" id="troubleshooting">
+      <h2><span class="icon">&#x1F525;</span> Troubleshooting</h2>
+
+      <h3 style="margin-top:1rem; font-size:1rem;">Error: "Build failed"</h3>
+      <pre><code># 1. Corri el build localmente para ver el error real
+npm run build
+
+# 2. Revisa los Build Logs en el dashboard:
+#    Workers & Pages &#x2192; mi-frontend &#x2192; Deployments &#x2192; [tu deploy] &#x2192; Build logs</code></pre>
+
+      <h3 style="margin-top:1.5rem; font-size:1rem;">Error: "404 en recarga de pagina"</h3>
+      <p>Falta la regla de redirect SPA. Agrega a <code>wrangler.toml</code>:</p>
+      <pre><code>[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200</code></pre>
+      <p>O configuralo desde el dashboard en <strong>Routes</strong>.</p>
+
+      <h3 style="margin-top:1.5rem; font-size:1rem;">Error: "Variables de entorno undefined"</h3>
+      <pre><code># 1. Verifica el prefijo (VITE_, NEXT_PUBLIC_, REACT_APP_)
+# 2. Verifica el ambito (Production vs Preview)
+# 3. Hace redeploy despues de agregar las env vars
+wrangler pages deploy dist --project-name=mi-frontend
+
+# 4. Verifica que esten configuradas:
+wrangler pages secret list --project-name=mi-frontend</code></pre>
+
+      <h3 style="margin-top:1.5rem; font-size:1rem;">Error: "CORS en produccion"</h3>
+      <pre><code># Agrega CORS en una Function middleware:
+// functions/_middleware.js
+export async function onRequest(context) {
+  const response = await context.next();
+  response.headers.set("Access-Control-Allow-Origin", "https://miapp.com");
+  response.headers.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  return response;
+}
+
+# O en tu backend (Express):
+const cors = require('cors');
+app.use(cors({
+  origin: [
+    'https://miapp.com',
+    'https://www.miapp.com',
+    'https://mi-frontend.pages.dev'  // para previews
+  ]
+}));</code></pre>
+
+      <h3 style="margin-top:1.5rem; font-size:1rem;">Build lento</h3>
+      <pre><code># 1. Cloudflare Pages ya cachea dependencias automaticamente
+# 2. Si usas monorepo, configura solo el package del frontend:
+#    Build command: cd packages/frontend &amp;&amp; npm install &amp;&amp; npm run build
+
+# 3. Usa pnpm en vez de npm (mas rapido):
+#    Build command: npm i -g pnpm &amp;&amp; pnpm install --frozen-lockfile &amp;&amp; pnpm build</code></pre>
+
+      <h3 style="margin-top:1.5rem; font-size:1rem;">Como hacer rollback</h3>
+      <pre><code># Desde el dashboard:
+# Deployments &#x2192; seleccionar un deploy anterior &#x2192; "..." &#x2192; Rollback to this deployment
+
+# Desde la CLI (deploy un commit anterior):
+wrangler pages deploy dist --project-name=mi-frontend</code></pre>
+
+      <h3 style="margin-top:1.5rem; font-size:1rem;">Error: "Functions not found" o "404 en /api"</h3>
+      <pre><code># 1. Verifica que la carpeta se llame "functions" (en minuscula)
+# 2. Verifica la estructura de archivos:
+#    functions/api/hello.js &#x2192; /api/hello
+#    functions/api/users/[id].js &#x2192; /api/users/:id
+
+# 3. Verifica que el nombre del archivo coincida con la ruta
+# 4. Haz redeploy despues de agregar Functions</code></pre>
+    </div>
+
+    <!-- CHECKLIST FINAL -->
+    <div class="step" data-step="&#x2713;" id="checklist">
+      <h2><span class="icon">&#x1F4CB;</span> Checklist final</h2>
+      <ul class="checklist">
+        <li>Repo conectado a Cloudflare Pages</li>
+        <li>Framework detectado correctamente</li>
+        <li>Build command y output dir configurados</li>
+        <li>Env vars cargadas en Production</li>
+        <li>Env vars cargadas en Preview</li>
+        <li><code>.env</code> esta en <code>.gitignore</code></li>
+        <li><code>.env.example</code> commiteado con los nombres de las vars</li>
+        <li>SPA routing configurado (redirect <code>/*</code> a <code>/index.html</code>)</li>
+        <li>Primer deploy funciona correctamente</li>
+        <li>Deploy preview funciona en una branch</li>
+        <li>Dominio personalizado configurado (si aplica)</li>
+        <li>SSL activo y funcionando</li>
+        <li>Functions configuradas (si aplica)</li>
+        <li>Rollback probado</li>
+      </ul>
+    </div>
+
+    <footer>
+      Generado para el proyecto react-utn &#xB7; Julio 2026
+    </footer>
+
+  </div>
+
+  <script>
+    (function () {
+      var saved = localStorage.getItem('theme');
+      if (saved === 'light') {
+        document.documentElement.classList.add('light');
+      } else if (!saved) {
+        if (window.matchMedia('(prefers-color-scheme: light)').matches) {
+          document.documentElement.classList.add('light');
+        }
+      }
+    })();
+
+    function toggleTheme() {
+      document.documentElement.classList.toggle('light');
+      var isLight = document.documentElement.classList.contains('light');
+      localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>React UTN 2026 — Hands-On Code</title>
+  <style>
+    /* ─── Dark theme (default) ─── */
+    :root, [data-theme="dark"] {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface-hover: #22263a;
+      --nav-bg: #13151e;
+      --border: #2a2e3d;
+      --text: #e4e6ed;
+      --text-muted: #8b8fa3;
+      --accent: #61dafb;
+      --accent-dim: rgba(97, 218, 251, 0.12);
+      --bonus: #fbbf24;
+      --bonus-dim: rgba(251, 191, 36, 0.1);
+      --green: #34d399;
+      --green-dim: rgba(52, 211, 153, 0.1);
+      --red: #f87171;
+      --purple: #a78bfa;
+      --purple-dim: rgba(167, 139, 250, 0.1);
+      --blue: #60a5fa;
+      --blue-dim: rgba(96, 165, 250, 0.1);
+      --orange: #fb923c;
+      --orange-dim: rgba(251, 146, 60, 0.1);
+      --pink: #f472b6;
+      --pink-dim: rgba(244, 114, 182, 0.1);
+      --teal: #2dd4bf;
+      --teal-dim: rgba(45, 212, 191, 0.1);
+      --cyan: #22d3ee;
+      --cyan-dim: rgba(34, 211, 238, 0.1);
+      --code-bg: rgba(255,255,255,0.06);
+      --shadow: 0 2px 20px rgba(0,0,0,0.3);
+      --toggle-bg: #2a2e3d;
+      --toggle-knob: #fbbf24;
+      --nav-active-bg: rgba(97,218,251,0.08);
+      --nav-active-border: var(--accent);
+    }
+
+    /* ─── Light theme ─── */
+    [data-theme="light"] {
+      --bg: #f5f6f8;
+      --surface: #ffffff;
+      --surface-hover: #f0f1f4;
+      --nav-bg: #ffffff;
+      --border: #d8dae0;
+      --text: #1a1d27;
+      --text-muted: #6b7080;
+      --accent: #0284c7;
+      --accent-dim: rgba(2, 132, 199, 0.08);
+      --bonus: #b45309;
+      --bonus-dim: rgba(180, 83, 9, 0.07);
+      --green: #059669;
+      --green-dim: rgba(5, 150, 105, 0.07);
+      --red: #dc2626;
+      --purple: #7c3aed;
+      --purple-dim: rgba(124, 58, 237, 0.07);
+      --blue: #2563eb;
+      --blue-dim: rgba(37, 99, 235, 0.07);
+      --orange: #ea580c;
+      --orange-dim: rgba(234, 88, 12, 0.07);
+      --pink: #db2777;
+      --pink-dim: rgba(219, 39, 119, 0.07);
+      --teal: #0d9488;
+      --teal-dim: rgba(13, 148, 136, 0.07);
+      --cyan: #0891b2;
+      --cyan-dim: rgba(8, 145, 178, 0.07);
+      --code-bg: rgba(0,0,0,0.05);
+      --shadow: 0 2px 20px rgba(0,0,0,0.07);
+      --toggle-bg: #d1d5db;
+      --toggle-knob: #0284c7;
+      --nav-active-bg: rgba(2,132,199,0.07);
+      --nav-active-border: var(--accent);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    /* ─── Topbar ─── */
+    .topbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 52px;
+      background: var(--nav-bg);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.5rem;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    .topbar-brand {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .topbar-brand span { color: var(--accent); }
+
+    /* ─── Theme toggle ─── */
+    .theme-toggle {
+      position: relative;
+      width: 52px;
+      height: 28px;
+      border-radius: 14px;
+      background: var(--toggle-bg);
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s;
+      flex-shrink: 0;
+    }
+
+    .theme-toggle::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--toggle-knob);
+      transition: transform 0.3s, background 0.3s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+
+    [data-theme="light"] .theme-toggle::after {
+      transform: translateX(24px);
+    }
+
+    .toggle-icons {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 6px;
+      font-size: 13px;
+      pointer-events: none;
+    }
+
+    /* ─── Nav sidebar ─── */
+    .sidebar {
+      position: fixed;
+      top: 52px;
+      left: 0;
+      bottom: 0;
+      width: 260px;
+      background: var(--nav-bg);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      padding: 1.2rem 0;
+      z-index: 90;
+      transition: background 0.3s, border-color 0.3s, transform 0.3s;
+    }
+
+    .sidebar-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--text-muted);
+      padding: 0 1.2rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      padding: 0.55rem 1.2rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: all 0.15s;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-link:hover {
+      color: var(--text);
+      background: var(--surface-hover);
+    }
+
+    .sidebar-link.active {
+      color: var(--accent);
+      background: var(--nav-active-bg);
+      border-left-color: var(--nav-active-border);
+      font-weight: 600;
+    }
+
+    .sidebar-link .num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0.8rem 1.2rem;
+    }
+
+    .sidebar-footer {
+      padding: 0.8rem 1.2rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* ─── Sidebar toggle button (mobile) ─── */
+    .sidebar-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 1.3rem;
+      cursor: pointer;
+      padding: 0.2rem;
+      line-height: 1;
+    }
+
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      top: 52px;
+      background: rgba(0,0,0,0.5);
+      z-index: 85;
+    }
+
+    /* ─── Main content ─── */
+    .main-content {
+      margin-left: 260px;
+      margin-top: 52px;
+      transition: margin-left 0.3s;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 3.5rem 2rem 2.5rem;
+      background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 4%, transparent) 0%, transparent 100%);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 0.4rem;
+    }
+
+    .hero h1 span { color: var(--accent); }
+
+    .hero p {
+      color: var(--text-muted);
+      font-size: 1rem;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-top: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+    }
+
+    .stat strong {
+      color: var(--accent);
+      font-size: 1.05rem;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* ─── Cards ─── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 2rem 2.2rem;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.3s;
+      position: relative;
+      overflow: hidden;
+      scroll-margin-top: 72px;
+    }
+
+    .card:hover {
+      border-color: color-mix(in srgb, var(--card-accent) 40%, transparent);
+      box-shadow: 0 0 30px color-mix(in srgb, var(--card-accent) 6%, transparent);
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--card-accent), transparent 80%);
+      opacity: 0.7;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .card-number {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+      background: var(--card-dim);
+      color: var(--card-accent);
+      border: 1px solid color-mix(in srgb, var(--card-accent) 20%, transparent);
+    }
+
+    .card-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--card-accent);
+    }
+
+    .card-folder {
+      font-size: 0.78rem;
+      padding: 0.25rem 0.7rem;
+      border-radius: 20px;
+      background: var(--card-dim);
+      color: var(--card-accent);
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+      border: 1px solid color-mix(in srgb, var(--card-accent) 15%, transparent);
+      margin-left: auto;
+    }
+
+    .exercise {
+      margin: 1rem 0 1.2rem;
+      padding: 0.9rem 1.1rem;
+      background: var(--green-dim);
+      border-left: 3px solid var(--green);
+      border-radius: 0 8px 8px 0;
+      font-size: 0.95rem;
+    }
+
+    .exercise strong {
+      color: var(--green);
+      font-weight: 600;
+    }
+
+    .requirements {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .requirements li {
+      position: relative;
+      padding-left: 1.6rem;
+      font-size: 0.92rem;
+      color: var(--text);
+      line-height: 1.55;
+    }
+
+    .requirements li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.55rem;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--card-accent);
+      opacity: 0.5;
+    }
+
+    .requirements li code {
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+      font-size: 0.82rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 5px;
+      background: var(--code-bg);
+      color: var(--accent);
+      border: 1px solid var(--border);
+    }
+
+    .bonus-section {
+      margin-top: 1.2rem;
+      padding-top: 1rem;
+      border-top: 1px dashed var(--border);
+    }
+
+    .bonus-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--bonus);
+      margin-bottom: 0.6rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .bonus-label::before {
+      content: '\2605';
+      font-size: 0.85rem;
+    }
+
+    .bonus-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .bonus-list li {
+      position: relative;
+      padding-left: 1.6rem;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+    }
+
+    .bonus-list li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.5rem;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--bonus);
+      opacity: 0.45;
+    }
+
+    .bonus-list li code {
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+      font-size: 0.8rem;
+      padding: 0.12rem 0.4rem;
+      border-radius: 5px;
+      background: var(--bonus-dim);
+      color: var(--bonus);
+      border: 1px solid color-mix(in srgb, var(--bonus) 15%, transparent);
+    }
+
+    .subtest {
+      list-style: none;
+      margin-top: 0.4rem;
+      padding-left: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .subtest li {
+      position: relative;
+      padding-left: 1.2rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .subtest li::before {
+      content: '\2192';
+      position: absolute;
+      left: 0;
+      color: var(--card-accent);
+      opacity: 0.5;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ─── Mobile ─── */
+    @media (max-width: 800px) {
+      .sidebar-toggle { display: block; }
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      .sidebar.open {
+        transform: translateX(0);
+        box-shadow: var(--shadow);
+      }
+      .sidebar-overlay.open { display: block; }
+      .main-content { margin-left: 0; }
+      .hero h1 { font-size: 1.5rem; }
+      .card { padding: 1.5rem 1.2rem; }
+      .card-folder { margin-left: 0; }
+    }
+
+    /* ─── Scrollbar ─── */
+    .sidebar::-webkit-scrollbar { width: 4px; }
+    .sidebar::-webkit-scrollbar-track { background: transparent; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  </style>
+</head>
+<body>
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:0.8rem;">
+      <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Menu">&#9776;</button>
+      <div class="topbar-brand"><span>React</span> UTN 2026</div>
+    </div>
+    <button class="theme-toggle" onclick="toggleTheme()" aria-label="Cambiar tema">
+      <span class="toggle-icons">
+        <span>&#127769;</span>
+        <span>&#9728;&#65039;</span>
+      </span>
+    </button>
+  </header>
+
+  <!-- Sidebar overlay (mobile) -->
+  <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+  <!-- Sidebar navigation -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-title">Ejercicios</div>
+
+    <a href="#useState" class="sidebar-link" data-card="0">
+      <span class="num" style="background:var(--blue-dim);color:var(--blue);">01</span>
+      useState
+    </a>
+    <a href="#useEffect" class="sidebar-link" data-card="1">
+      <span class="num" style="background:var(--green-dim);color:var(--green);">02</span>
+      useEffect
+    </a>
+    <a href="#useReducer" class="sidebar-link" data-card="2">
+      <span class="num" style="background:var(--orange-dim);color:var(--orange);">03</span>
+      useReducer
+    </a>
+    <a href="#useContext" class="sidebar-link" data-card="3">
+      <span class="num" style="background:var(--purple-dim);color:var(--purple);">04</span>
+      useContext
+    </a>
+    <a href="#useRef" class="sidebar-link" data-card="4">
+      <span class="num" style="background:var(--pink-dim);color:var(--pink);">05</span>
+      useRef
+    </a>
+
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-title">Patrones</div>
+
+    <a href="#forms" class="sidebar-link" data-card="5">
+      <span class="num" style="background:var(--teal-dim);color:var(--teal);">06</span>
+      Forms
+    </a>
+    <a href="#router" class="sidebar-link" data-card="6">
+      <span class="num" style="background:var(--cyan-dim);color:var(--cyan);">07</span>
+      React Router
+    </a>
+    <a href="#zustand" class="sidebar-link" data-card="7">
+      <span class="num" style="background:rgba(248,113,113,0.1);color:var(--red);">08</span>
+      Zustand
+    </a>
+    <a href="#testing" class="sidebar-link" data-card="8">
+      <span class="num" style="background:var(--purple-dim);color:var(--purple);">09</span>
+      Testing
+    </a>
+
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-footer">
+      9 proyectos &middot; 18 extras
+    </div>
+  </nav>
+
+  <!-- Main content -->
+  <div class="main-content">
+
+    <section class="hero">
+      <h1><span>React</span> &mdash; Hands-On Code</h1>
+      <p>Ejercicios practicos del curso UTN 2026. Completa cada ejercicio en la carpeta de su proyecto.</p>
+      <div class="stats">
+        <div class="stat"><strong>9</strong> proyectos</div>
+        <div class="stat"><strong>9</strong> ejercicios</div>
+        <div class="stat"><strong>18</strong> extras bonus</div>
+      </div>
+    </section>
+
+    <main class="container">
+
+      <!-- 1. useState -->
+      <article id="useState" class="card" style="--card-accent: var(--blue); --card-dim: var(--blue-dim);">
+        <div class="card-header">
+          <div class="card-number">01</div>
+          <div class="card-title">React hook useState</div>
+          <div class="card-folder">hook-use-state/</div>
+        </div>
+        <div class="exercise">
+          <strong>Ejercicio:</strong> Crear una lista de tareas (To-Do List) que practique los diferentes usos de useState: primitivos, arrays y objetos.
+        </div>
+        <ul class="requirements">
+          <li>El componente principal debe manejar un estado <code>tasks</code> como array de objetos con la forma: <code>{ id, text, completed }</code></li>
+          <li>Agregar tareas nuevas mediante un input controlado (useState para el valor del input)</li>
+          <li>Cada tarea debe tener un checkbox para marcarla como completada (actualizar el estado del objeto <code>completed</code> de forma inmutable usando <code>map</code>)</li>
+          <li>Agregar un boton "Eliminar" por tarea que la remueva del array usando <code>filter</code></li>
+          <li>Mostrar un contador de tareas pendientes usando una variable derivada del estado (no un segundo useState)</li>
+        </ul>
+        <div class="bonus-section">
+          <div class="bonus-label">Extras Bonus</div>
+          <ul class="bonus-list">
+            <li>Agregar un boton "Limpiar completadas" que solo elimine las tareas marcadas como <code>completed: true</code></li>
+            <li>Agregar un boton "Editar" que permita modificar el texto de una tarea existente inline</li>
+          </ul>
+        </div>
+      </article>
+
+      <!-- 2. useEffect -->
+      <article id="useEffect" class="card" style="--card-accent: var(--green); --card-dim: var(--green-dim);">
+        <div class="card-header">
+          <div class="card-number">02</div>
+          <div class="card-title">React hook useEffect</div>
+          <div class="card-folder">hook-use-effect/</div>
+        </div>
+        <div class="exercise">
+          <strong>Ejercicio:</strong> Crear un componente que busque y muestre personajes de una API publica, practicando useEffect, cleanup y estados de carga/error.
+        </div>
+        <ul class="requirements">
+          <li>Consumir la API <code>https://rickandmortyapi.com/api/character</code> para obtener personajes</li>
+          <li>Implementar un campo de busqueda que filtre personajes por nombre (con debounce de 500ms para no saturar la API)</li>
+          <li>Manejar y mostrar estados de loading (spinner o texto), error (mensaje de error) y exito</li>
+          <li>Implementar cleanup con AbortController para cancelar requests anteriores al hacer una nueva busqueda</li>
+        </ul>
+        <div class="bonus-section">
+          <div class="bonus-label">Extras Bonus</div>
+          <ul class="bonus-list">
+            <li>Crear un custom hook <code>useCharacterSearch</code> que encapsule toda la logica de fetch, loading, error y cleanup, y reutilizarlo en el componente</li>
+            <li>Usar TanStack React Query (<code>useQuery</code>) para manejar el cache de busquedas anteriores, de modo que si el usuario busca algo, vuelve atras y busca lo mismo, no haga un nuevo request</li>
+          </ul>
+        </div>
+      </article>
+
+      <!-- 3. useReducer -->
+      <article id="useReducer" class="card" style="--card-accent: var(--orange); --card-dim: var(--orange-dim);">
+        <div class="card-header">
+          <div class="card-number">03</div>
+          <div class="card-title">React hook useReducer</div>
+          <div class="card-folder">hook-use-reducer/</div>
+        </div>
+        <div class="exercise">
+          <strong>Ejercicio:</strong> Separar la logica del reducer del componente Carrito, de manera que se maneje de forma independiente del Carrito y del componente App.
+        </div>
+        <ul class="requirements">
+          <li>Mover la logica del reducer y los tipos de accion, del componente Carrito a un archivo <code>cartReducer.js</code></li>
+          <li>La informacion del carrito se debe poder consumir desde el componente Carrito y desde el App component. Ver de que manera se puede compartir ese estado.</li>
+        </ul>
+      </article>
+
+      <!-- 4. useContext -->
+      <article id="useContext" class="card" style="--card-accent: var(--purple); --card-dim: var(--purple-dim);">
+        <div class="card-header">
+          <div class="card-number">04</div>
+          <div class="card-title">React hook useContext</div>
+          <div class="card-folder">hook-use-context/</div>
+        </div>
+        <div class="exercise">
+          <strong>Ejercicio:</strong> Crear un contexto llamado LanguageContext. Utilizarlo para que se pueda cambiar el lenguaje de la aplicacion.
+        </div>
+        <ul class="requirements">
+          <li>Manejar 3 idiomas diferentes. El lenguaje por default tiene que ser ingles (<code>en</code>)</li>
+          <li>Permitir al usuario cambiar el idioma de la aplicacion</li>
+          <li>Mostrar en diferentes componentes, textos traducidos segun el idioma actual configurado en la aplicacion</li>
+          <li>Usar un custom hook para leer el contexto</li>
+        </ul>
+        <div class="bonus-section">
+          <div class="bonus-label">Extras Bonus</div>
+          <ul class="bonus-list">
+            <li>Al cambiar el lenguaje de la aplicacion, si el usuario apreta F5 y recarga la pagina, se vuelve a iniciar con el idioma por default (<code>en</code>). Implementar una manera de evitar esta situacion, de modo tal que al refrescar la pagina, el idioma en el cual se muestre la aplicacion sea el ultimo que el usuario selecciono.</li>
+          </ul>
+        </div>
+      </article>
+
+      <!-- 5. useRef -->
+      <article id="useRef" class="card" style="--card-accent: var(--pink); --card-dim: var(--pink-dim);">
+        <div class="card-header">
+          <div class="card-number">05</div>
+          <div class="card-title">React hook useRef</div>
+          <div class="card-folder">hook-use-ref/</div>
+        </div>
+        <div class="exercise">
+          <strong>Ejercicio:</strong> Crear un componente de chat con un campo de texto que demuestre el uso de useRef para acceder al DOM sin provocar re-renders.
+        </div>
+        <ul class="requirements">
+          <li>Crear un componente <code>ChatInput</code> con un campo de texto (<code>&lt;textarea&gt;</code>) y un boton "Enviar"</li>
+          <li>Usar <code>useRef</code> para obtener una referencia directa al <code>&lt;textarea&gt;</code> del DOM</li>
+          <li>Al hacer clic en "Enviar", leer el valor del textarea usando <code>ref.current.value</code>, agregarlo a la lista de mensajes y limpiar el campo con <code>ref.current.value = ""</code></li>
+          <li>El textarea debe tener auto-focus al montarse el componente usando <code>ref.current.focus()</code> dentro de un useEffect con dependencia vacia</li>
+        </ul>
+        <div class="bonus-section">
+          <div class="bonus-label">Extras Bonus</div>
+          <ul class="bonus-list">
+            <li>Agregar un boton "Insertar plantilla" que usando <code>ref.current.focus()</code> posicione el cursor en el textarea y con <code>ref.current.setRangeText()</code> inserte un texto predefinido en la posicion del cursor sin borrar lo que ya se escribio</li>
+            <li>Agregar un segundo <code>useRef</code> para hacer scroll automatico al ultimo mensaje de la lista cuando se envie uno nuevo, usando <code>ref.current.scrollIntoView({ behavior: "smooth" })</code></li>
+          </ul>
+        </div>
+      </article>
+
+      <!-- 6. Forms -->
+      <article id="forms" class="card" style="--card-accent: var(--teal); --card-dim: var(--teal-dim);">
+        <div class="card-header">
+          <div class="card-number">06</div>
+          <div class="card-title">Forms en React</div>
+          <div class="card-folder">forms/</div>
+        </div>
+        <div class="exercise">
+          <strong>Ejercicio:</strong> Crear un formulario de registro de usuario que combine validacion con react-hook-form y manejo de errores con zod.
+        </div>
+        <ul class="requirements">
+          <li>Usar <code>react-hook-form</code> con el resolver de <code>zod</code> (<code>@hookform/resolvers/zod</code>)</li>
+          <li>Definir un schema de zod con los campos: nombre (string, minimo 3 caracteres), email (string, formato email), contrasena (string, minimo 8 caracteres, al menos una mayuscula y un numero), confirmar contrasena (debe coincidir con contrasena)</li>
+          <li>Mostrar errores de validacion debajo de cada campo en tiempo real (al hacer blur) y al intentar enviar</li>
+          <li>Agregar un campo "Terminos y condiciones" checkbox que sea obligatorio para enviar</li>
+          <li>Agregar un campo "Rol" con un <code>&lt;select&gt;</code> (admin, editor, viewer) cuyo valor por defecto sea "viewer"</li>
+        </ul>
+        <div class="bonus-section">
+          <div class="bonus-label">Extras Bonus</div>
+          <ul class="bonus-list">
+            <li>Mostrar la fortaleza de la contrasena en tiempo real (debil/media/fuerte) usando <code>watch</code> de react-hook-form</li>
+            <li>Simular un submit asincrono (setTimeout de 2 segundos) mostrando un spinner en el boton mientras se "envia", y al completar mostrar un mensaje de exito y resetear el formulario con <code>reset()</code></li>
+          </ul>
+        </div>
+      </article>
+
+      <!-- 7. React Router -->
+      <article id="router" class="card" style="--card-accent: var(--cyan); --card-dim: var(--cyan-dim);">
+        <div class="card-header">
+          <div class="card-number">07</div>
+          <div class="card-title">React Router</div>
+          <div class="card-folder">react-router/</div>
+        </div>
+        <div class="exercise">
+          <strong>Ejercicio:</strong> Extender la aplicacion DSWApp con una seccion de blog que utilice rutas anidadas, parametros dinamicos, rutas protegidas y lazy loading.
+        </div>
+        <ul class="requirements">
+          <li>Crear una ruta <code>/blog</code> accesible para todos los usuarios que muestre una lista de posts</li>
+          <li>Crear rutas anidadas <code>/blog/:id</code> que muestren el detalle de cada post (usar un parametro dinamico con <code>useParams</code>)</li>
+          <li>Crear una ruta protegida <code>/blog/new</code> accesible solo para usuarios con rol "admin" que muestre un formulario para crear posts</li>
+          <li>Usar <code>React.lazy()</code> y <code>Suspense</code> para aplicar lazy loading a las paginas del blog, mostrando un fallback mientras se cargan</li>
+          <li>Crear un breadcrumb dinamico que muestre la navegacion actual (Home &gt; Blog &gt; Post Title) usando <code>useLocation</code></li>
+        </ul>
+        <div class="bonus-section">
+          <div class="bonus-label">Extras Bonus</div>
+          <ul class="bonus-list">
+            <li>Agregar una ruta <code>/blog/tags/:tag</code> que filtre posts por tag, y usar <code>useSearchParams</code> para permitir combinar el filtro por tag con un ordenamiento (<code>?sort=asc</code> o <code>?sort=desc</code>)</li>
+            <li>Implementar una "404" especifica para posts que no existan, diferenciandola de la 404 general de la app</li>
+          </ul>
+        </div>
+      </article>
+
+      <!-- 8. Zustand -->
+      <article id="zustand" class="card" style="--card-accent: var(--red); --card-dim: rgba(248,113,113,0.1);">
+        <div class="card-header">
+          <div class="card-number">08</div>
+          <div class="card-title">Zustand &mdash; Carrito de Compras</div>
+          <div class="card-folder">zustand/</div>
+        </div>
+        <div class="exercise">
+          <strong>Ejercicio:</strong> Migrar la logica del carrito a una arquitectura con multiples stores de Zustand (slicing).
+        </div>
+        <ul class="requirements">
+          <li>Separar el store actual en dos stores independientes: <code>cartStore</code> (items del carrito) y <code>productStore</code> (catalogo de productos disponibles)</li>
+          <li>El <code>productStore</code> debe exponer <code>products</code> y una accion <code>fetchProducts</code> asincrona que simule obtener productos desde una API (usar <code>setTimeout</code>)</li>
+          <li><code>Cart.jsx</code> debe consumir los productos desde <code>productStore</code> y las acciones del carrito desde <code>cartStore</code></li>
+          <li>Persistir solo los items del carrito en localStorage, no los productos</li>
+        </ul>
+        <div class="bonus-section">
+          <div class="bonus-label">Extras Bonus</div>
+          <ul class="bonus-list">
+            <li>Agregar un boton "Limpiar completadas" que vacie el carrito</li>
+            <li>Permitir editar la cantidad de cada item en el carrito desde un input numerico</li>
+          </ul>
+        </div>
+      </article>
+
+      <!-- 9. React Testing -->
+      <article id="testing" class="card" style="--card-accent: var(--purple); --card-dim: var(--purple-dim);">
+        <div class="card-header">
+          <div class="card-number">09</div>
+          <div class="card-title">React Testing</div>
+          <div class="card-folder">react-testing/</div>
+        </div>
+        <div class="exercise">
+          <strong>Ejercicio:</strong> Escribir tests para un componente de lista de tareas (To-Do List) cubriendo interacciones del usuario, estados asincronos y edge cases.
+        </div>
+        <ul class="requirements">
+          <li>Crear un componente <code>TodoList</code> que permita: agregar tareas, marcar como completada, eliminar y filtrar (todas/pendientes/completadas)</li>
+          <li>Escribir tests unitarios que verifiquen:</li>
+        </ul>
+        <ul class="subtest">
+          <li>El renderizado inicial con un mensaje "No hay tareas" cuando la lista esta vacia</li>
+          <li>El agregado de una tarea: escribir en el input, hacer submit, y verificar que aparezca en la lista</li>
+          <li>La eliminacion de una tarea: hacer clic en "Eliminar" y verificar que desaparezca</li>
+          <li>El filtrado: crear 3 tareas, marcar 1 como completada, filtrar por "Pendientes" y verificar que solo se muestren 2</li>
+        </ul>
+        <div class="bonus-section">
+          <div class="bonus-label">Extras Bonus</div>
+          <ul class="bonus-list">
+            <li>Simular una operacion asincrona (como guardar en localStorage con setTimeout) y usar <code>waitFor</code> o <code>findBy*</code> para verificar el resultado</li>
+            <li>Testear el caso edge de intentar agregar una tarea vacia y verificar que no se agregue, y testear que el contador de pendientes se actualice correctamente en cada operacion</li>
+          </ul>
+        </div>
+      </article>
+
+    </main>
+
+    <footer>
+      React UTN 2026 &mdash; Ejercicios Hands-On Code
+    </footer>
+  </div>
+
+  <script>
+    // ─── Theme toggle ───
+    function toggleTheme() {
+      const html = document.documentElement;
+      const current = html.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', next);
+      localStorage.setItem('hoc-theme', next);
+    }
+
+    // Restore saved theme
+    (function() {
+      const saved = localStorage.getItem('hoc-theme');
+      if (saved) document.documentElement.setAttribute('data-theme', saved);
+    })();
+
+    // ─── Sidebar toggle (mobile) ───
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+      document.querySelector('.sidebar-overlay').classList.toggle('open');
+    }
+
+    // Close sidebar on link click (mobile)
+    document.querySelectorAll('.sidebar-link').forEach(function(link) {
+      link.addEventListener('click', function() {
+        if (window.innerWidth <= 800) {
+          document.getElementById('sidebar').classList.remove('open');
+          document.querySelector('.sidebar-overlay').classList.remove('open');
+        }
+      });
+    });
+
+    // ─── Active section tracking ───
+    (function() {
+      var links = document.querySelectorAll('.sidebar-link');
+      var ids = [];
+      links.forEach(function(l) { ids.push(l.getAttribute('href').slice(1)); });
+
+      function update() {
+        var scrollY = window.scrollY + 100;
+        var active = 0;
+        for (var i = ids.length - 1; i >= 0; i--) {
+          var el = document.getElementById(ids[i]);
+          if (el && el.offsetTop <= scrollY) { active = i; break; }
+        }
+        links.forEach(function(l, i) {
+          l.classList.toggle('active', i === active);
+        });
+      }
+
+      window.addEventListener('scroll', update, { passive: true });
+      update();
+    })();
+  </script>
+
+</body>
+</html>
