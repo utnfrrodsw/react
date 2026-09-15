@@ -6,7 +6,6 @@ export default function useFetch(url, options) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    let cancelled = false;
     const controller = new AbortController();
     const { signal } = controller;
 
@@ -19,26 +18,21 @@ export default function useFetch(url, options) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const result = await response.json();
-        if (!cancelled) {
-          setData(result);
-        }
+        setData(result);
       } catch (err) {
         if (err.name === 'AbortError') {
           console.log('Fetch aborted!');
-        } else if (!cancelled) {
+        } else {
           setError(err.message);
         }
       } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+        setLoading(false);
       }
     };
 
     fetchData();
 
     return () => {
-      cancelled = true;
       console.log('Componente desmontándose, abortando la petición fetch...');
       controller.abort();
     };
